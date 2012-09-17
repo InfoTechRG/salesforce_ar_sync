@@ -1,0 +1,32 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://login.salesforce.com/services/oauth2/token?client_id=3MVG9yZ.WNe6byQDDY.I2LMxgXZP6VfNwpnPNPRnkgbkvr5OeCoLBVphJZwFPGn2kpoCSkMvYna8SWpo6VrCL&client_secret=560135035990941505&grant_type=password&password=ELUTo419249i2dwDe3FsQO3C64Lp4Bz5QOU&username=liam@nediger.com
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - ! '*/*'
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - ''
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Mon, 13 Aug 2012 20:32:41 GMT
+    body:
+      encoding: US-ASCII
+      string: ! '{"id":"https://login.salesforce.com/id/00DA0000000gAclMAE/005A0000001r9iBIAQ","issued_at":"1344889962089","instance_url":"https://na7.salesforce.com","signature":"n5Z0KTf/drhjXyXRkfeV4sTR2SH+LC5tyM2UKnvMsq0=","access_token":"00DA0000000gAcl!AREAQGc1U03vGp1Xn4979.S1c6slvnFMJf4n7A_mPwxR7S_D7wQAQeM476aSwKw5XyPDkwMEd7P1S3bxiWkJy62GKIt2.IJn"}'
+    http_version: !!null 
+  recorded_at: Mon, 13 Aug 2012 20:32:45 GMT
+recorded_with: VCR 2.2.4

@@ -1,0 +1,111 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://login.salesforce.com/services/oauth2/token?client_id=3MVG9yZ.WNe6byQDDY.I2LMxgXZP6VfNwpnPNPRnkgbkvr5OeCoLBVphJZwFPGn2kpoCSkMvYna8SWpo6VrCL&client_secret=560135035990941505&grant_type=password&password=ELUTo419249i2dwDe3FsQO3C64Lp4Bz5QOU&username=liam@nediger.com
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - ! '*/*'
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - ''
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Mon, 13 Aug 2012 20:32:40 GMT
+    body:
+      encoding: US-ASCII
+      string: ! '{"id":"https://login.salesforce.com/id/00DA0000000gAclMAE/005A0000001r9iBIAQ","issued_at":"1344889960920","instance_url":"https://na7.salesforce.com","signature":"TSA8uHrIcz9kRRkacQJ4Zc/rnY5ySeT27fJAm4jjYe8=","access_token":"00DA0000000gAcl!AREAQGc1U03vGp1Xn4979.S1c6slvnFMJf4n7A_mPwxR7S_D7wQAQeM476aSwKw5XyPDkwMEd7P1S3bxiWkJy62GKIt2.IJn"}'
+    http_version: !!null 
+  recorded_at: Mon, 13 Aug 2012 20:32:44 GMT
+- request:
+    method: patch
+    uri: https://na7.salesforce.com/services/data/v22.0/sobjects/Contact/Id/003A0000014dbEeIAI
+    body:
+      encoding: US-ASCII
+      string: ! '{"WebId__c":68836}'
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - OAuth 00DA0000000gAcl!AREAQGc1U03vGp1Xn4979.S1c6slvnFMJf4n7A_mPwxR7S_D7wQAQeM476aSwKw5XyPDkwMEd7P1S3bxiWkJy62GKIt2.IJn
+      Accept:
+      - ! '*/*'
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 204
+      message: No Content
+    headers:
+      Server:
+      - ''
+      Content-Length:
+      - '0'
+      Date:
+      - Mon, 13 Aug 2012 20:32:40 GMT
+    body:
+      encoding: US-ASCII
+      string: ''
+    http_version: !!null 
+  recorded_at: Mon, 13 Aug 2012 20:32:44 GMT
+- request:
+    method: get
+    uri: https://na7.salesforce.com/services/data/v22.0/query?q=SELECT%20Id,IsDeleted,MasterRecordId,AccountId,LastName,FirstName,Salutation,Name,OtherStreet,OtherCity,OtherState,OtherPostalCode,OtherCountry,MailingStreet,MailingCity,MailingState,MailingPostalCode,MailingCountry,Phone,Fax,MobilePhone,HomePhone,OtherPhone,AssistantPhone,ReportsToId,Email,Title,Department,AssistantName,LeadSource,Birthdate,Description,OwnerId,CreatedDate,CreatedById,LastModifiedDate,LastModifiedById,SystemModstamp,LastActivityDate,LastCURequestDate,LastCUUpdateDate,EmailBouncedReason,EmailBouncedDate,Jigsaw,Level__c,Languages__c,WebId__c%20FROM%20Contact%20WHERE%20WebId__c%20=%2068836%20LIMIT%201
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Authorization:
+      - OAuth 00DA0000000gAcl!AREAQGc1U03vGp1Xn4979.S1c6slvnFMJf4n7A_mPwxR7S_D7wQAQeM476aSwKw5XyPDkwMEd7P1S3bxiWkJy62GKIt2.IJn
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - ! '*/*'
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - ''
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Mon, 13 Aug 2012 20:32:41 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAI1T227aQBD9lWifWpXgC5cQ3oxJW1ehpJioD1UVLfYEtjJe
+        ujsmAcS/d3zBrEVTlSfPmXPOzM4MB4YSeRKKPbCh02KxTOkDVQYtpiCSKtZs
+        +OPAOKISiwyBwgPD3YZYzJcp8ghZi2UqodjSoLYiAm3FHLm1dd22bWm5+AUR
+        aqtiW7bd8ez853TjxR0EXsCOLRbEZPCXFGX0GBJAIMIzTzQ1NuEaQc2K9nJd
+        miVJi3lRJLMUKyOnNLJxotQ08EIyuifZV77OO/8k0z1PYE/oR6FqeCY1EBTy
+        JEOOQqYnbyN/ZWinuAIVogLAE7OAfIG7BhCSHTSQB6lp7r6Mm7CfP0HV4gkX
+        iUiXzRIVaBapeUaZCrssdNI3Sz2sitWzdz3HfX9107u57tP48gHx11opFyKB
+        illCn+W6CZSvMxFPa0E9pNhAZ7CRCvVcnjd4t6bOTsFcYFKTx7DhCteQ4oVp
+        uZoSvAcehzJTUY2MhMJVbExlDDpSYmMud/qSgqrOpledjaNuxSjwvtH7fQWk
+        j8eFCXNtx722B9dOZ+7aQ+d22O22if/BLodVkUe7t/3yM5zIWDyLN0w77rDr
+        mKam4l/O4Y7+F2ti0mDWm//z9SIUW7qksTGjHPcfZ/A7A42XicdNPlATLxY3
+        onuKIJ4B1+fZmhlT8UUsNX85720LydNTdK6TLjO+BG1g32ERxEXcHww6/bZ9
+        /Hn8A9IWPVC+BAAA
+    http_version: !!null 
+  recorded_at: Mon, 13 Aug 2012 20:32:44 GMT
+recorded_with: VCR 2.2.4

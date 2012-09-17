@@ -1,0 +1,36 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://na7.salesforce.com/services/data/v22.0/sobjects/Contact
+    body:
+      encoding: US-ASCII
+      string: ! '{}'
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - OAuth 00DA0000000gAcl!AREAQGc1U03vGp1Xn4979.S1c6slvnFMJf4n7A_mPwxR7S_D7wQAQeM476aSwKw5XyPDkwMEd7P1S3bxiWkJy62GKIt2.IJn
+      Accept:
+      - ! '*/*'
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Server:
+      - ''
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Mon, 13 Aug 2012 20:33:56 GMT
+    body:
+      encoding: US-ASCII
+      string: ! '[{"fields":["LastName"],"message":"Required fields are missing: [LastName]","errorCode":"REQUIRED_FIELD_MISSING"}]'
+    http_version: !!null 
+  recorded_at: Mon, 13 Aug 2012 20:34:00 GMT
+recorded_with: VCR 2.2.4
