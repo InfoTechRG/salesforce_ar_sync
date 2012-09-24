@@ -6,7 +6,7 @@ module SalesforceArSync
       def initialize organization, options = {}
         @options = options
         @xml_hashed = options
-        @organization = SALESFORCE_AR_SYNC_CONFIG["ORGANIZATION_ID"]
+        @organization = SalesforceArSync.config["ORGANIZATION_ID"]
         @sobjects = collect_sobjects if valid?
       end
 

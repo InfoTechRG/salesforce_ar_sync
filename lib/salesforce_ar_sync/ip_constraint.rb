@@ -3,7 +3,7 @@ require 'ipaddr'
 module SalesforceArSync
   class IPConstraint
     def initialize
-    	@ip_ranges = SALESFORCE_AR_SYNC_CONFIG["IP_RANGES"]
+    	@ip_ranges = SalesforceArSync.config["IP_RANGES"]
     end
  
     def matches?(request)

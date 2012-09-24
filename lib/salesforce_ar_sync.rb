@@ -8,6 +8,7 @@ require 'salesforce_ar_sync/ip_constraint'
 
 module SalesforceArSync
   mattr_accessor :app_root
+  mattr_accessor :config
   
   def self.setup
     yield self

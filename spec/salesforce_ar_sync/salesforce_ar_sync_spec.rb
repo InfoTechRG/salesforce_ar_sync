@@ -1,9 +1,9 @@
 require 'spec_helper.rb'
 
 #for testing our environment variables
-SALESFORCE_AR_SYNC_CONFIG = Hash.new
-SALESFORCE_AR_SYNC_CONFIG["ORGANIZATION_ID"] = "123456789123456789"
-SALESFORCE_AR_SYNC_CONFIG["SYNC_ENABLED"] = true
+SalesforceArSync.config = Hash.new
+SalesforceArSync.config["ORGANIZATION_ID"] = "123456789123456789"
+SalesforceArSync.config["SYNC_ENABLED"] = true
 
 class Contact < SuperModel::Base
   include ActiveModel::Validations::Callbacks
@@ -168,13 +168,13 @@ describe SalesforceArSync, :vcr do
       end
     end
 
-    context 'when SYNC_ENABLED is false in the global SALESFORCE_AR_SYNC_CONFIG hash' do
+    context 'when SYNC_ENABLED is false in the global SalesforceArSync.config hash' do
       it 'should return true' do
-        SALESFORCE_AR_SYNC_CONFIG["SYNC_ENABLED"] = false;
+        SalesforceArSync.config["SYNC_ENABLED"] = false;
 
         Contact.new.salesforce_skip_sync?.should be_true
 
-        SALESFORCE_AR_SYNC_CONFIG["SYNC_ENABLED"] = true;
+        SalesforceArSync.config["SYNC_ENABLED"] = true;
       end
     end
 

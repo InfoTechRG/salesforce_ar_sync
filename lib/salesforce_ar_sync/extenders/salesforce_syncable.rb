@@ -46,7 +46,7 @@ module SalesforceArSync
           # The salesforce_skip_sync instance variable is also used.
           # The SALESFORCE_AR_SYNC_ENABLED flag overrides all the others if set to false
           def salesforce_skip_sync?
-            return true if SALESFORCE_AR_SYNC_CONFIG["SYNC_ENABLED"] == false
+            return true if SalesforceArSync.config["SYNC_ENABLED"] == false
             return (salesforce_skip_sync || !self.class.salesforce_sync_enabled || send(self.class.salesforce_skip_sync_method)) if self.class.salesforce_skip_sync_method.present?
             return (salesforce_skip_sync || !self.class.salesforce_sync_enabled)
           end
