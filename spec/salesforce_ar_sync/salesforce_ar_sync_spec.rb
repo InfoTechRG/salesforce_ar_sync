@@ -81,7 +81,6 @@ describe SalesforceArSync, :vcr do
         :salesforce_sync_web_id => false,
         :web_class_name => 'Contact',
         :salesforce_object_name => :salesforce_object_name_method_name,
-        :salesforce_object => :salesforce_object_method_name,
         :except => :except_method_name
     end
     
@@ -94,20 +93,10 @@ describe SalesforceArSync, :vcr do
       TestSyncable.salesforce_web_id_attribute_name.should eq(:WebId__c)
       TestSyncable.salesforce_web_class_name.should eq("Contact")
       TestSyncable.salesforce_object_name_method.should eq(:salesforce_object_name_method_name)
-      TestSyncable.salesforce_object_method.should eq(:salesforce_object_method_name)
       TestSyncable.salesforce_skip_sync_method.should eq(:except_method_name)
     end
   end
 
-  describe 'sync_web_id' do
-    it 'returns false if salesforce_skip_sync? is true' do
-      Contact.any_instance.stub(:salesforce_skip_sync?).and_return(true)
-      Contact.stub!(:salesforce_sync_web_id?).and_return(true)
-            
-      Contact.new.sync_web_id.should eq(false)
-    end
-  end
-  
   describe '.salesforce_update' do
     it 'should raise an exception if the salesforce id is blank' do
       lambda { Contact.salesforce_update(:Id => '', :FirstName => 'Bob') }.should raise_exception(ArgumentError)
@@ -259,67 +248,6 @@ describe SalesforceArSync, :vcr do
         
         sync_test = SyncTest.new(:salesforce_skip_sync => true)
         sync_test.salesforce_skip_sync?.should be_true
-      end
-    end
-  end
-  
-  describe '#salesforce_object' do
-    before(:each) do
-      $sf_client = Databasedotcom::Client.new(:host => 'login.salesforce.com', :client_id => '', :client_secret => '')
-      $sf_client.authenticate :username => '', :password => ''
-      $sf_client.sobject_module = Databasedotcom
-      $sf_client.materialize "Contact"  
-    end
-    
-    context 'given we have a salesforce id' do
-      it 'finds and returns the salesforce object by the salesforce_id' do
-        contact = Contact.new(:salesforce_id => sample_outbound_message_hash[:Id])
-        contact.salesforce_object.FirstName.should == sample_outbound_message_hash[:FirstName]
-      end
-    end
-    
-    context 'given we have no salesforce id and are not syncing the web id' do
-      it "returns nil" do
-        contact = Contact.new(:salesforce_id => nil)
-        contact.salesforce_object.should be_nil
-      end
-    end
-    
-    context 'given we have no salesforce id and we are syncing the web id' do
-      it 'finds and returns the salesforce object by the WebId__c' do
-        Databasedotcom::Contact.upsert("Id", sample_outbound_message_hash[:Id], "WebId__c" => sample_outbound_message_hash[:WebId__c])
-        
-        Contact.stub(:salesforce_sync_web_id?).and_return(true)
-        contact = Contact.new(:salesforce_id => nil)
-        contact.salesforce_skip_sync = true
-        contact.id = sample_outbound_message_hash[:WebId__c]
-        contact.save!
-        contact.salesforce_object.FirstName.should == sample_outbound_message_hash[:FirstName]
-      end
-    end
-    
-    context 'given we have a new record with no salesforce id' do
-      it 'returns nil' do
-        contact = Contact.new(:salesforce_id => nil)
-        contact.salesforce_object.should be_nil
-      end
-    end
-    
-    context 'given the model has provided a custom method' do
-      it 'executes the provided method' do
-        class User < SuperModel::Base
-          include ActiveModel::Validations::Callbacks
-          extend SalesforceArSync::Extenders::SalesforceSyncable
-
-          salesforce_syncable :salesforce_object => :custom_salesforce_object
-
-          def custom_salesforce_object
-            "CustomUser"
-          end
-        end
-        
-        user = User.new
-        user.salesforce_object.should eq("CustomUser")
       end
     end
   end
