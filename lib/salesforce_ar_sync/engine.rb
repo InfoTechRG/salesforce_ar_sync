@@ -6,16 +6,12 @@ module SalesforceArSync
         
         #Load the configuration from the environment or a yaml file or disable it if no config present
         SalesforceArSync.config = Hash.new
-
         #load the config file if we have it
         if FileTest.exist?("#{Rails.root}/config/salesforce_ar_sync.yml")
-          config = YAML.load_file("#{Rails.root}/config/salesforce_ar_sync.yml")
-          config = config[Rails.env]
-          if config['organization_id'].present? && config['ip_ranges'].present? && config['sync_enabled'].present?
-            SalesforceArSync.config["ORGANIZATION_ID"] = config['organization_id']
-            SalesforceArSync.config["SYNC_ENABLED"] = config['sync_enabled']
-            SalesforceArSync.config["IP_RANGES"] = config['ip_ranges'].split(',').map{ |ip| ip.strip }
-          end
+          config = YAML.load_file("#{Rails.root}/config/salesforce_ar_sync.yml")[Rails.env]
+          SalesforceArSync.config["ORGANIZATION_ID"] = config['organization_id']
+          SalesforceArSync.config["SYNC_ENABLED"] = config['sync_enabled']
+          SalesforceArSync.config["IP_RANGES"] = config['ip_ranges'].split(',').map{ |ip| ip.strip }
         end
 
         #if we have ENV flags prefer them
