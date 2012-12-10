@@ -46,8 +46,10 @@ properly. Make sure each of the models you wish to sync are materialized.
 ````ruby
 $sf_client = Databasedotcom::Client.new("config/databasedotcom.yml")
 $sf_client.authenticate :username => <username>, :password => <password>
-$sf_client.sobject_module = Databasedotcom
-$sf_client.materialize "User"
+
+module SalesforceArSync::SalesforceSync
+  SF_CLIENT = $sf_client
+end
 ````
 
 ### Gem Installation
@@ -140,8 +142,7 @@ The model can have several options set:
 [__web_id_attribute_name__](#web_id_attribute_name)  
 [__salesforce_sync_web_id__](#salesforce_sync_web_id)  
 [__web_class_name__](#web_class_name)  
-[__salesforce_object_name__](#salesforce_object_name)  
-[__salesforce_object__](#salesforce_object)  
+[__salesforce_object_name__](#salesforce_object_name)   
 [__except__](#except)  
 
 #### <a id="salesforce_sync_enabled"></a>salesforce_sync_enabled
@@ -214,14 +215,6 @@ Optionally holds the name of a method which will return the name of the Salesfor
 
 ````ruby
 :salesforce_object_name => :salesforce_object_name_method_name
-````
-
-#### salesforce_object
-Optionally holds the name of a method which will retrieve a Salesforce object. Default implementation is called if no 
-method is specified, defaults to nil.
-
-````ruby
-:salesforce_object => :salesforce_object_method_name
 ````
 
 #### except
@@ -367,9 +360,9 @@ class Contact < ActiveRecord::Base
   attr_accessor :first_name, :last_name, :phone, :email, :last_login_time
   
   salesforce_syncable :sync_attributes => {:FirstName => :first_name, :LastName => :last_name, :Phone => :phone, :Email => :email},
-                      :salesforce_object => :custom_salesforce_object
+                      :salesforce_object_name => :custom_salesforce_object_name
 
-  def custom_salesforce_object
+  def custom_salesforce_object_name
     "CustomContact__c"
   end
 end
