@@ -39,11 +39,7 @@ module SalesforceArSync
       
       # Optionally holds the name of a method which will return the name of the Salesforce object to sync to
       attr_accessor :salesforce_object_name_method
-      
-      # Optionally holds the name of a method which will retrieve a Salesforce object. Default implementation is called
-      # if no method is specified
-      attr_accessor :salesforce_object_method
-      
+
       # Optionally holds the name of a method which can contain logic to determine if a record should be synced on save.
       # If no method is given then only the salesforce_skip_sync attribute is used.
       attr_accessor :salesforce_skip_sync_method
@@ -116,16 +112,22 @@ module SalesforceArSync
       self.save!
     end
 
-    # This method will fetch the salesforce object and go looking for it if it doesn't exist
-    def salesforce_object_default
-      return @sf_object if @sf_object.present?
+#    def salesforce_object_exists?
+#      return salesforce_object_exists_method if respond_to? salesforce_exists_method
+#      return salesforce_object_exists_default
+#    end
+    
+    
+    # Finds a salesforce record by its Id and returns nil or its SystemModstamp
+    def system_mod_stamp
+      hash = JSON.parse(SF_CLIENT.http_get("/services/data/v#{SF_CLIENT.version}/query", :q => "SELECT SystemModstamp FROM #{salesforce_object_name} WHERE Id = '#{salesforce_id}'").body)
+      hash["records"].first.try(:[], "SystemModstamp")    
+    end
 
-      @sf_object = "Databasedotcom::#{self.salesforce_object_name}".constantize.send("find_by_#{self.class.salesforce_id_attribute_name.to_s}", salesforce_id) unless salesforce_id.nil?
 
-      # Look up and link object by web id
-      @sf_object ||= "Databasedotcom::#{self.salesforce_object_name}".constantize.send("find_by_#{self.class.salesforce_web_id_attribute_name.to_s}", id) if self.class.salesforce_sync_web_id? && !new_record?
-
-      return @sf_object
+    def salesforce_object_exists?
+      return @exists_in_salesforce if @exists_in_salesforce
+      @exists_in_salesforce = !system_mod_stamp.nil?
     end
 
     # Checks if the passed in attribute should be updated in Salesforce.com
@@ -157,12 +159,14 @@ module SalesforceArSync
 
     def salesforce_create_object(attributes)
       attributes.merge!(self.class.salesforce_web_id_attribute_name.to_s => id) if self.class.salesforce_sync_web_id? && !new_record?
-      @sf_object = "Databasedotcom::#{self.salesforce_object_name}".constantize.create(attributes)
+      result = SF_CLIENT.http_post("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}", attributes.to_json)
+      self.salesforce_id = JSON.parse(result.body)["id"]
+      @exists_in_salesforce = true
     end
 
     def salesforce_update_object(attributes)
       attributes.merge!(self.class.salesforce_web_id_attribute_name.to_s => id) if self.class.salesforce_sync_web_id? && !new_record?
-      salesforce_object.update_attributes(attributes) if salesforce_object
+      SF_CLIENT.http_patch("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}/#{salesforce_id}", attributes.to_json)
     end
 
     # if attributes specified in the async_attributes array are the only attributes being modified, then sync the data 
@@ -175,23 +179,24 @@ module SalesforceArSync
     # sync model data to Salesforce, adding any Salesforce validation errors to the models errors
     def salesforce_sync
       return if self.salesforce_skip_sync?
-
       if salesforce_perform_async_call?
-        Delayed::Job.enqueue(SalesforceArSync::SalesforceObjectSync.new(self.class.salesforce_web_class_name, self.salesforce_object_name, salesforce_id, salesforce_attributes_to_update), :priority => 50)
+        Delayed::Job.enqueue(SalesforceArSync::SalesforceObjectSync.new(self.class.salesforce_web_class_name, salesforce_id, salesforce_attributes_to_update), :priority => 50)
       else
-        salesforce_update_object(salesforce_attributes_to_update) if salesforce_attributes_to_update.present? && salesforce_object
-        salesforce_create_object(salesforce_attributes_to_update(!new_record?)) if salesforce_id.nil? && salesforce_object.nil?
-
-        self.salesforce_id = salesforce_object.send(self.class.salesforce_id_attribute_name) unless salesforce_object.nil?
+        if salesforce_object_exists?
+          salesforce_update_object(salesforce_attributes_to_update) if salesforce_attributes_to_update.present?
+        else
+          salesforce_create_object(salesforce_attributes_to_update(!new_record?)) if salesforce_id.nil? 
+        end
       end
     rescue Exception => ex
       self.errors[:base] << ex.message
       return false
     end
-
-    def sync_web_id
+    
+    def sync_web_id 	
       return false if !self.class.salesforce_sync_web_id? || self.salesforce_skip_sync?
-      salesforce_object.update_attribute(self.class.salesforce_web_id_attribute_name.to_s, id) if salesforce_id && salesforce_object
-    end    
+      SF_CLIENT.http_patch("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}/#{salesforce_id}", { self.class.salesforce_web_id_attribute_name.to_s => id }.to_json) if salesforce_id
+    end
+
   end
 end

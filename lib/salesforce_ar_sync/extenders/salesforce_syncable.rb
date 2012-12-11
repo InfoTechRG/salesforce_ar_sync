@@ -15,12 +15,11 @@ module SalesforceArSync
         self.salesforce_web_class_name = options.has_key?(:web_class_name) ? options[:web_class_name] : self.name
         
         self.salesforce_object_name_method = options.has_key?(:salesforce_object_name) ? options[:salesforce_object_name] : nil
-        self.salesforce_object_method = options.has_key?(:salesforce_object) ? options[:salesforce_object] : nil
         self.salesforce_skip_sync_method = options.has_key?(:except) ? options[:except] : nil
         
         instance_eval do
           before_save :salesforce_sync
-          after_create :sync_web_id     
+          after_create :sync_web_id
           
           def salesforce_sync_web_id?
             self.salesforce_sync_web_id
@@ -33,13 +32,6 @@ module SalesforceArSync
           def salesforce_object_name
             return send(self.class.salesforce_object_name_method) if self.class.salesforce_object_name_method.present?
             return self.class.name
-          end
-          
-          # Calls a method, if provided, to retrieve an object from Salesforce. Calls the default implementation if
-          # no custom method is specified
-          def salesforce_object
-            return send(self.class.salesforce_object_method) if self.class.salesforce_object_method.present?
-            return send(:salesforce_object_default)
           end
           
           # Calls a method, if provided, to determine if a record should be synced to Salesforce. 
