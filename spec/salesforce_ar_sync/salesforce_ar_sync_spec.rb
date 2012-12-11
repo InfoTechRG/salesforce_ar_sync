@@ -96,6 +96,15 @@ describe SalesforceArSync, :vcr do
       TestSyncable.salesforce_skip_sync_method.should eq(:except_method_name)
     end
   end
+  
+  describe 'sync_web_id' do
+    it 'returns false if salesforce_skip_sync? is true' do
+      Contact.any_instance.stub(:salesforce_skip_sync?).and_return(true)
+      Contact.stub!(:salesforce_sync_web_id?).and_return(true)
+            
+      Contact.new.sync_web_id.should eq(false)
+    end
+  end
 
   describe '.salesforce_update' do
     it 'should raise an exception if the salesforce id is blank' do

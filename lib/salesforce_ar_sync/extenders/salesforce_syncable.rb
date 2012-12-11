@@ -19,6 +19,7 @@ module SalesforceArSync
         
         instance_eval do
           before_save :salesforce_sync
+          after_create :sync_web_id
           
           def salesforce_sync_web_id?
             self.salesforce_sync_web_id

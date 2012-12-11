@@ -192,6 +192,11 @@ module SalesforceArSync
       self.errors[:base] << ex.message
       return false
     end
+    
+    def sync_web_id 	
+      return false if !self.class.salesforce_sync_web_id? || self.salesforce_skip_sync?
+      SF_CLIENT.http_patch("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}/#{salesforce_id}", { self.class.salesforce_web_id_attribute_name.to_s => id }.to_json) if salesforce_id
+    end
 
   end
 end
