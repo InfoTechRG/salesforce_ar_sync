@@ -8,7 +8,7 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{ActiveRecord extension & rails engine for syncing data with Salesforce.com}
   gem.homepage      = "http://github.com/InfoTech/"
 
-  gem.files         = Dir['README.md', 'LICENSE', 'lib/**/*']
+  gem.files         = Dir['README.md', 'LICENSE', 'lib/**/*', 'app/**/*', 'config/**/*']
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = "salesforce_ar_sync"
