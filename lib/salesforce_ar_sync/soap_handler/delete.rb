@@ -8,12 +8,12 @@ module SalesforceArSync
        end
 
        def self.delete_object(hash = {})
-         raise ArgumentError, "Object_Id__c parameter required" if hash[:Object_Id__c].blank?
-         raise ArgumentError, "Object_Type__c parameter required" if hash[:Object_Type__c].blank?
+         raise ArgumentError, "Object_Id__c parameter required" if hash[namespaced(:Object_Id__c)].blank?
+         raise ArgumentError, "Object_Type__c parameter required" if hash[namespaced(:Object_Type__c)].blank?
      
-         object = hash[:Object_Type__c].constantize.find_by_salesforce_id(hash[:Object_Id__c])
+         object = hash[namespaced(:Object_Type__c)].constantize.find_by_salesforce_id(hash[namespaced(:Object_Id__c)])
          object.destroy if object
        end
-     end
+    end
    end
  end

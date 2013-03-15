@@ -12,12 +12,14 @@ module SalesforceArSync
           SalesforceArSync.config["ORGANIZATION_ID"] = config['organization_id']
           SalesforceArSync.config["SYNC_ENABLED"] = config['sync_enabled']
           SalesforceArSync.config["IP_RANGES"] = config['ip_ranges'].split(',').map{ |ip| ip.strip }
+          SalesforceArSync.config["NAMESPACE_PREFIX"] = config['namespace_prefix']
         end
 
         #if we have ENV flags prefer them
         SalesforceArSync.config["ORGANIZATION_ID"] = ENV["SALESFORCE_AR_SYNC_ORGANIZATION_ID"] if ENV["SALESFORCE_AR_SYNC_ORGANIZATION_ID"]
         SalesforceArSync.config["SYNC_ENABLED"] = ENV["SALESFORCE_AR_SYNC_SYNC_ENABLED"] if ENV.include? "SALESFORCE_AR_SYNC_SYNC_ENABLED"
         SalesforceArSync.config["IP_RANGES"] = ENV["SALESFORCE_AR_SYNC_IP_RANGES"].split(',').map{ |ip| ip.strip } if ENV["SALESFORCE_AR_SYNC_IP_RANGES"]
+        SalesforceArSync.config["NAMESPACE_PREFIX"] = ENV["SALESFORCE_AR_NAMESPACE_PREFIX"] if ENV["SALESFORCE_AR_NAMESPACE_PREFIX"]
 
         #do we have valid config options now?
         if !SalesforceArSync.config["ORGANIZATION_ID"].present? || SalesforceArSync.config["ORGANIZATION_ID"].length != 18
