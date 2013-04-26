@@ -3,15 +3,18 @@ production:
   sync_enabled: true
   # Salesforce owned IPs from: https://help.salesforce.com/apex/HTViewSolution?language=en_US&id=000003652
   ip_ranges: "204.14.232.0/23,204.14.237.0/24,96.43.144.0/22,96.43.148.0/22,204.14.234.0/23,204.14.238.0/23,182.50.76.0/22"
+  namespace_prefix:
   
 development:
   organization_id: <%= @organization_id %>
   sync_enabled: false
   # Salesforce owned IPs from: https://help.salesforce.com/apex/HTViewSolution?language=en_US&id=000003652
   ip_ranges: "204.14.232.0/23,204.14.237.0/24,96.43.144.0/22,96.43.148.0/22,204.14.234.0/23,204.14.238.0/23,182.50.76.0/22"
+  namespace_prefix:
     
 test:
   organization_id: <%= @organization_id %>
   sync_enabled: false
   # Salesforce owned IPs from: https://help.salesforce.com/apex/HTViewSolution?language=en_US&id=000003652
   ip_ranges: "204.14.232.0/23,204.14.237.0/24,96.43.144.0/22,96.43.148.0/22,204.14.234.0/23,204.14.238.0/23,182.50.76.0/22"
+  namespace_prefix:
