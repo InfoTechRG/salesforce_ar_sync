@@ -110,6 +110,7 @@ The options available to configure are
 
 * __organization_id__: the 18 character organization id of your Salesforce instance
 * __sync_enabled__: a global sync enabled flag which is a boolean true/false
+* __namespace_prefix__: Namespace prefix of your Salesforce app in case you specified one
 
 To generate a YAML file
 
@@ -123,6 +124,7 @@ which will create a template salesforce_ar_sync.yml in /config that looks like t
 
     organization_id: <organization id> #18 character organization_id
     sync_enabled: true
+    namespace_prefix:
 
     
 To use the ENV variable you must pass environemnt variables to rails via the _export_ command in bash or before the
@@ -130,7 +132,8 @@ initializer loads the ENV settings.
 
     $ export SALESFORCE_AR_SYNC_ORGANIZATION_ID=123456789123456789
     $ export SALESFORCE_AR_SYNC_SYNC_ENABLED=true
-    
+    $ export SALESFORCE_AR_NAMESPACE_PREFIX=my_prefix
+
 ### Model Options
 The model can have several options set:
 
