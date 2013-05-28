@@ -348,7 +348,7 @@ using the 18 digit Salesforce id, but maintain our ActiveRecord relationships.
 		end
 
 		def salesforce_account_id=(account_id)
-		  self.account = nil and return if account_id.nil?
+		  self.account = nil if account_id.nil? and return
 		  self.account = Account.find_or_create_by_salesforce_id(account_id)
 		end
 	end
