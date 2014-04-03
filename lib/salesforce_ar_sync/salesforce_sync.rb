@@ -34,6 +34,11 @@ module SalesforceArSync
       # if you wanted to flatten a web object into a larger SF object like Contact     
       attr_accessor :salesforce_web_class_name
 
+      # Specify whether or not we sync deletes inbound from salesforce or outbound from this app
+      # Accepts either a true/false or a symbol to a method to be called
+      attr_accessor :sync_inbound_delete
+      attr_accessor :sync_outbound_delete
+
       attr_accessor :salesforce_web_id_attribute_name        
       attr_accessor :salesforce_sync_web_id
       
@@ -167,6 +172,23 @@ module SalesforceArSync
     def salesforce_update_object(attributes)
       attributes.merge!(self.class.salesforce_web_id_attribute_name.to_s => id) if self.class.salesforce_sync_web_id? && !new_record?
       SF_CLIENT.http_patch("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}/#{salesforce_id}", attributes.to_json)
+    end
+
+    def salesforce_delete_object
+      if self.ar_sync_outbound?
+        SF_CLIENT.http_delete("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}/#{salesforce_id}")
+      end
+    end
+
+    # Check to see if the user passed in a true/false, if so return that, if not then they passed int a symbol to a method
+    # We then call the method and use its value instead
+    def ar_sync_inbound?
+      [true,false].include?(self.class.sync_inbound_delete) ? self.class.sync_inbound_delete : send(self.class.sync_inbound_delete)
+    end
+
+    def ar_sync_outbound?
+      byebug
+      [true,false].include?(self.class.sync_outbound_delete) ? self.class.sync_outbound_delete : send(self.class.sync_outbound_delete)
     end
 
     # if attributes specified in the async_attributes array are the only attributes being modified, then sync the data 

@@ -13,13 +13,17 @@ module SalesforceArSync
         self.salesforce_web_id_attribute_name = options.has_key?(:web_id_attribute_name) ? options[:web_id_attribute_name] : :WebId__c
         self.salesforce_sync_web_id = options.has_key?(:salesforce_sync_web_id) ? options[:salesforce_sync_web_id] : false
         self.salesforce_web_class_name = options.has_key?(:web_class_name) ? options[:web_class_name] : self.name
-        
+
+        self.sync_inbound_delete = options.has_key?(:sync_inbound_delete) ? options[:sync_inbound_delete] : true
+        self.sync_outbound_delete = options.has_key?(:sync_outbound_delete) ? options[:sync_outbound_delete] : false
+
         self.salesforce_object_name_method = options.has_key?(:salesforce_object_name) ? options[:salesforce_object_name] : nil
         self.salesforce_skip_sync_method = options.has_key?(:except) ? options[:except] : nil
         
         instance_eval do
           before_save :salesforce_sync
           after_create :sync_web_id
+          after_commit :salesforce_delete_object, on: :destroy
           
           def salesforce_sync_web_id?
             self.salesforce_sync_web_id
