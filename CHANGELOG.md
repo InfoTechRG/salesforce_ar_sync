@@ -5,3 +5,6 @@
 * Adds missed paths to the gemspec to fix initialization issues when used as a gem
 # Version 1.1.2
 * Adds support for namespaced Salesforce apps
+# Version 1.1.3
+* Adds support for outbound deletions
+* Adds ability to configure inbound/outbound deletions on a per model basis
