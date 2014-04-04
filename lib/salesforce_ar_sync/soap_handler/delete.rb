@@ -12,7 +12,7 @@ module SalesforceArSync
          raise ArgumentError, "Object_Type__c parameter required" if hash[namespaced(:Object_Type__c)].blank?
      
          object = hash[namespaced(:Object_Type__c)].constantize.find_by_salesforce_id(hash[namespaced(:Object_Id__c)])
-         object.destroy if object
+         object.destroy if object && object.ar_sync_inbound_delete?
        end
     end
    end

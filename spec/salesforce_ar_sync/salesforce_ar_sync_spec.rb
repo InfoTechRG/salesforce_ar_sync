@@ -5,14 +5,8 @@ SalesforceArSync.config = Hash.new
 SalesforceArSync.config["ORGANIZATION_ID"] = "123456789123456789"
 SalesforceArSync.config["SYNC_ENABLED"] = true
 
-class Contact < SuperModel::Base
-  include ActiveModel::Validations::Callbacks
-  extend SalesforceArSync::Extenders::SalesforceSyncable
-
+class Contact < ActiveRecord::Base
   salesforce_syncable :sync_attributes => {:FirstName => :first_name, :LastName => :last_name, :Phone => :phone_number, :Email => :email_address}
-
-  attributes :first_name, :last_name, :phone, :email, :salesforce_id, :salesforce_updated_at
-  attr_accessor :first_name, :last_name
   
   def phone_number=(new_phone_number)
     self.phone = new_phone_number
@@ -26,22 +20,10 @@ class Contact < SuperModel::Base
     email_changed?
   end
   
-  # Hack for SuperModel to allow setting all attributes
-  def attributes=(attributes={})
-    attributes.each do |name, value|
-      send("#{name}=", value)
-    end
-  end
-  
-  # Hack for SuperModel to convert string to Time
+  # Hack for Parsing into the proper Timezone
   def salesforce_updated_at=(updated_at)
     updated_at = Time.parse(updated_at) if updated_at.present? && updated_at.kind_of?(String)
     write_attribute(:salesforce_updated_at, updated_at)
-  end
-  
-  # Hack for SuperModel, since we don't have any actually DB columns, we need to override the is_boolean?(attr) method
-  def is_boolean?(attribute)
-    %w().include?(attribute)
   end
 end
 
@@ -68,7 +50,7 @@ sample_partial_outbound_message_hash = {
 
 describe SalesforceArSync, :vcr do
   describe 'salesforce_syncable' do
-    class TestSyncable < SuperModel::Base
+    class TestSyncable < ActiveRecord::Base
       include ActiveModel::Validations::Callbacks
       extend SalesforceArSync::Extenders::SalesforceSyncable
 
@@ -81,7 +63,9 @@ describe SalesforceArSync, :vcr do
         :salesforce_sync_web_id => false,
         :web_class_name => 'Contact',
         :salesforce_object_name => :salesforce_object_name_method_name,
-        :except => :except_method_name
+        :except => :except_method_name,
+        :sync_inbound_delete => false,
+        :sync_outbound_delete => :outbound_delete_method_name
     end
     
     it 'should assign values from the options hash to model attributes' do
@@ -94,13 +78,15 @@ describe SalesforceArSync, :vcr do
       TestSyncable.salesforce_web_class_name.should eq("Contact")
       TestSyncable.salesforce_object_name_method.should eq(:salesforce_object_name_method_name)
       TestSyncable.salesforce_skip_sync_method.should eq(:except_method_name)
+      TestSyncable.sync_inbound_delete.should eq(false)
+      TestSyncable.sync_outbound_delete.should eq(:outbound_delete_method_name)
     end
   end
   
   describe 'sync_web_id' do
     it 'returns false if salesforce_skip_sync? is true' do
       Contact.any_instance.stub(:salesforce_skip_sync?).and_return(true)
-      Contact.stub!(:salesforce_sync_web_id?).and_return(true)
+      Contact.stub(:salesforce_sync_web_id?).and_return(true)
             
       Contact.new.sync_web_id.should eq(false)
     end
@@ -143,7 +129,7 @@ describe SalesforceArSync, :vcr do
     end
     
     it "calls a method if one is provided" do
-      class User < SuperModel::Base
+      class User < ActiveRecord::Base
         include ActiveModel::Validations::Callbacks
         extend SalesforceArSync::Extenders::SalesforceSyncable
 
@@ -156,6 +142,78 @@ describe SalesforceArSync, :vcr do
       
       user = User.new
       user.salesforce_object_name.should eq("CustomUser")
+    end
+  end
+
+  describe '.ar_sync_inbound_delete?' do
+    context 'by default' do
+      it 'should return true' do
+        contact = Contact.new
+        
+        contact.ar_sync_inbound_delete?.should be_true
+      end
+    end
+
+    context 'sync_inbound_delete set to true' do
+      it 'should return true' do
+        contact = Contact.new(:sync_inbound_delete => true)
+        
+        contact.ar_sync_inbound_delete?.should be_true
+      end
+    end
+
+    context 'sync_inbound_delete set to :method_name' do
+      it 'should return the result of the method' do
+        class DeleteTest < ActiveRecord::Base
+          include ActiveModel::Validations::Callbacks
+          extend SalesforceArSync::Extenders::SalesforceSyncable
+
+          salesforce_syncable :sync_inbound_delete => :sync_delete
+
+          def sync_delete
+            return true
+          end
+        end
+
+        delete_test = DeleteTest.new
+        delete_test.ar_sync_inbound_delete?.should be_true
+      end
+    end
+  end
+
+  describe '.ar_sync_outbound_delete?' do
+    context 'by default' do
+      it 'should return false' do
+        contact = Contact.new
+        
+        contact.ar_sync_outbound_delete?.should be_false
+      end
+    end
+
+    context 'sync_outbound_delete set to false' do
+      it 'should return false' do
+        contact = Contact.new(:sync_outbound_delete => false)
+        
+        contact.ar_sync_outbound_delete?.should be_false
+      end
+    end
+
+    context 'sync_outbound_delete set to :method_name' do
+      it 'should return the result of the method' do
+        class DeleteTest < ActiveRecord::Base
+          include ActiveModel::Validations::Callbacks
+          extend SalesforceArSync::Extenders::SalesforceSyncable
+
+          salesforce_syncable :sync_outbound_delete => :sync_delete
+
+          def sync_delete
+            return false
+          end
+        end
+
+        delete_test = DeleteTest.new
+        delete_test.ar_sync_outbound_delete?.should be_false
+      end
     end
   end
   
@@ -186,7 +244,7 @@ describe SalesforceArSync, :vcr do
 
     context 'when salesforce_sync_enabled is false on a class it' do
       it 'returns true' do
-        class SyncTest < SuperModel::Base
+        class SyncTest < ActiveRecord::Base
           include ActiveModel::Validations::Callbacks
           extend SalesforceArSync::Extenders::SalesforceSyncable
 
@@ -198,7 +256,7 @@ describe SalesforceArSync, :vcr do
       end
 
       it 'returns true if salesforce_skip_sync is set to true on an object' do
-        class SyncTest < SuperModel::Base
+        class SyncTest < ActiveRecord::Base
           include ActiveModel::Validations::Callbacks
           extend SalesforceArSync::Extenders::SalesforceSyncable
 
@@ -212,7 +270,7 @@ describe SalesforceArSync, :vcr do
     
     context 'when given a method' do      
       it 'returns the methods value' do
-        class SyncTest < SuperModel::Base
+        class SyncTest < ActiveRecord::Base
           include ActiveModel::Validations::Callbacks
           extend SalesforceArSync::Extenders::SalesforceSyncable
 
@@ -228,7 +286,7 @@ describe SalesforceArSync, :vcr do
       end
 
       it 'returns true if salesforce_sync_enabled is set to false on a class' do
-        class SyncTest < SuperModel::Base
+        class SyncTest < ActiveRecord::Base
           include ActiveModel::Validations::Callbacks
           extend SalesforceArSync::Extenders::SalesforceSyncable
 
@@ -244,7 +302,7 @@ describe SalesforceArSync, :vcr do
       end
       
       it 'returns true if salesforce_skip_sync is set to true on an object' do
-        class SyncTest < SuperModel::Base
+        class SyncTest < ActiveRecord::Base
           include ActiveModel::Validations::Callbacks
           extend SalesforceArSync::Extenders::SalesforceSyncable
 

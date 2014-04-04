@@ -7,7 +7,7 @@ Outbound Messaging, SOAP and databasedotcom.
 
 ### Requirements
 
-* Rails >= 3.1
+* Rails ~> 3.1
 * Salesforce.com instance
 * [Have your 18 character organization id ready](#finding-your-18-character-organization-id)
 * databasedotcom gem >= 1.3 installed and configured [see below](#databasedotcom)
@@ -372,6 +372,7 @@ end
 ```
 
 ## Deletes
+### Inbound Deletes
 In order to handle the delete of objects coming from Salesforce, a bit of code is necessary because an Outbound Message cannot be triggered when
 an object is deleted. To work around this you will need to create a new Custom Object in your Salesforce environment:
 
@@ -386,6 +387,30 @@ Object_Type__c will hold the name of the Rails Model that the Salesforce object 
 
 If you trigger a record to be written to this object whenever another object is deleted, and configure an Outbound Message to send to the /sf_soap/delete action
 whenever a Deleted_Object__c record is created, the corresponding record will be removed from your Rails app.
+
+Syncing inbound deletes is enabled by default, but can be configured in the Rails Model. 
+This is done using the :sync_inbound_delete option, which can take either a boolean value, or the name of a method that returns a boolean value.
+
+```ruby
+  salesforce_syncable :sync_inbound_delete => :inbound_delete
+                     #:sync_inbound_delete => true
+  def inbound_delete
+    return self.comments.count == 0
+  end
+```
+
+### Outbound Deletes
+Syncing outbound deletes to Salesforce is disabled by default, but can be configured in the Rails Model.
+This is done using the :sync_outbound_delete option, which can take either a boolean value, or the name of a method that returns a boolean value.
+
+```ruby
+  salesforce_syncable :sync_outbound_delete => :outbound_delete
+                     #:sync_outbound_delete => false
+
+  def outbound_delete
+    return self.is_trial_user?
+  end
+```
 
 ## Errors
 
