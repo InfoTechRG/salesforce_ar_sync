@@ -187,7 +187,6 @@ module SalesforceArSync
     end
 
     def ar_sync_outbound?
-      byebug
       [true,false].include?(self.class.sync_outbound_delete) ? self.class.sync_outbound_delete : send(self.class.sync_outbound_delete)
     end
 

@@ -1,16 +1,22 @@
 require 'bundler/setup'
 require 'rails/all'
 require 'salesforce_ar_sync'
-require 'supermodel'
+require 'active_record'
 require 'databasedotcom'
 require 'rspec'
 require 'ammeter/init'
 require 'vcr'
 
-# Configure Rails Envinronment
+# Configure Rails Environment
 ENV["RAILS_ENV"] = "test"
-
 ENGINE_RAILS_ROOT=File.join(File.dirname(__FILE__), '../')
+plugin_test_dir = File.dirname(__FILE__)
+
+# Load sqlite3 mem database for testing
+ActiveRecord::Base.configurations = YAML::load_file(File.join(plugin_test_dir, "db", "database.yml"))
+ActiveRecord::Base.establish_connection(ENV["DB"] || "sqlite3mem")
+ActiveRecord::Migration.verbose = false
+load(File.join(plugin_test_dir, "db", "schema.rb"))
 
 VCR.configure do |c|
   c.cassette_library_dir =  "vcr_cassettes"
