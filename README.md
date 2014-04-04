@@ -7,7 +7,7 @@ Outbound Messaging, SOAP and databasedotcom.
 
 ### Requirements
 
-* Rails >= 3.1
+* Rails ~> 3.1
 * Salesforce.com instance
 * [Have your 18 character organization id ready](#finding-your-18-character-organization-id)
 * databasedotcom gem >= 1.3 installed and configured [see below](#databasedotcom)
