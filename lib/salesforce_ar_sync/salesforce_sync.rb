@@ -175,18 +175,18 @@ module SalesforceArSync
     end
 
     def salesforce_delete_object
-      if self.ar_sync_outbound?
+      if self.ar_sync_outbound_delete?
         SF_CLIENT.http_delete("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}/#{salesforce_id}")
       end
     end
 
     # Check to see if the user passed in a true/false, if so return that, if not then they passed int a symbol to a method
     # We then call the method and use its value instead
-    def ar_sync_inbound?
+    def ar_sync_inbound_delete?
       [true,false].include?(self.class.sync_inbound_delete) ? self.class.sync_inbound_delete : send(self.class.sync_inbound_delete)
     end
 
-    def ar_sync_outbound?
+    def ar_sync_outbound_delete?
       [true,false].include?(self.class.sync_outbound_delete) ? self.class.sync_outbound_delete : send(self.class.sync_outbound_delete)
     end
 

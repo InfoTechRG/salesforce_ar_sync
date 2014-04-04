@@ -148,12 +148,12 @@ describe SalesforceArSync, :vcr do
     end
   end
 
-  describe '.ar_sync_inbound?' do
+  describe '.ar_sync_inbound_delete?' do
     context 'by default' do
       it 'should return true' do
         contact = Contact.new
         
-        contact.ar_sync_inbound?.should be_true
+        contact.ar_sync_inbound_delete?.should be_true
       end
     end
 
@@ -161,7 +161,7 @@ describe SalesforceArSync, :vcr do
       it 'should return true' do
         contact = Contact.new(:sync_inbound_delete => true)
         
-        contact.ar_sync_inbound?.should be_true
+        contact.ar_sync_inbound_delete?.should be_true
       end
     end
 
@@ -179,17 +179,17 @@ describe SalesforceArSync, :vcr do
         end
 
         delete_test = DeleteTest.new
-        delete_test.ar_sync_inbound?.should be_true
+        delete_test.ar_sync_inbound_delete?.should be_true
       end
     end
   end
 
-  describe '.ar_sync_outbound?' do
+  describe '.ar_sync_outbound_delete?' do
     context 'by default' do
       it 'should return false' do
         contact = Contact.new
         
-        contact.ar_sync_outbound?.should be_false
+        contact.ar_sync_outbound_delete?.should be_false
       end
     end
 
@@ -197,7 +197,7 @@ describe SalesforceArSync, :vcr do
       it 'should return false' do
         contact = Contact.new(:sync_outbound_delete => false)
         
-        contact.ar_sync_outbound?.should be_false
+        contact.ar_sync_outbound_delete?.should be_false
       end
     end
 
@@ -215,7 +215,7 @@ describe SalesforceArSync, :vcr do
         end
 
         delete_test = DeleteTest.new
-        delete_test.ar_sync_outbound?.should be_false
+        delete_test.ar_sync_outbound_delete?.should be_false
       end
     end
   end
