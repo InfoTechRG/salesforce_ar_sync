@@ -6,9 +6,6 @@ SalesforceArSync.config["ORGANIZATION_ID"] = "123456789123456789"
 SalesforceArSync.config["SYNC_ENABLED"] = true
 
 class Contact < ActiveRecord::Base
-  include ActiveModel::Validations::Callbacks
-  extend SalesforceArSync::Extenders::SalesforceSyncable
-
   salesforce_syncable :sync_attributes => {:FirstName => :first_name, :LastName => :last_name, :Phone => :phone_number, :Email => :email_address}
   
   def phone_number=(new_phone_number)
