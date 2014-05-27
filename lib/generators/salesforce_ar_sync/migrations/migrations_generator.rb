@@ -17,7 +17,7 @@ module SalesforceArSync
 
       def create_migrations
         models.each do |model|
-          create_migration(model)
+          create_ar_sync_migration(model)
         end
 
         if options[:migrate] == "yes" 
@@ -41,7 +41,7 @@ module SalesforceArSync
         @prev_migration_nr.to_s
       end
 
-      def create_migration(model_name)
+      def create_ar_sync_migration(model_name)
         #we can't load all the models in so let's assume it follows the standard nameing convention
         @table_name = model_name.tableize
         @model_name = model_name
