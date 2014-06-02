@@ -164,14 +164,14 @@ module SalesforceArSync
 
     def salesforce_create_object(attributes)
       attributes.merge!(self.class.salesforce_web_id_attribute_name.to_s => id) if self.class.salesforce_sync_web_id? && !new_record?
-      result = SF_CLIENT.http_post("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}", attributes.to_json)
+      result = SF_CLIENT.http_post("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}", format_attributes(attributes).to_json)
       self.salesforce_id = JSON.parse(result.body)["id"]
       @exists_in_salesforce = true
     end
 
     def salesforce_update_object(attributes)
       attributes.merge!(self.class.salesforce_web_id_attribute_name.to_s => id) if self.class.salesforce_sync_web_id? && !new_record?
-      SF_CLIENT.http_patch("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}/#{salesforce_id}", attributes.to_json)
+      SF_CLIENT.http_patch("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}/#{salesforce_id}", format_attributes(attributes).to_json)
     end
 
     def salesforce_delete_object
@@ -219,5 +219,14 @@ module SalesforceArSync
       SF_CLIENT.http_patch("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}/#{salesforce_id}", { self.class.salesforce_web_id_attribute_name.to_s => id }.to_json) if salesforce_id
     end
 
+    private
+
+    # Multi-picklists in the SF Rest API
+    def format_attributes(attributes)
+      attributes.each do |k,v|
+        attributes[k] = v.join(";") if v.is_a?(Array)
+      end
+      return attributes
+    end
   end
 end
