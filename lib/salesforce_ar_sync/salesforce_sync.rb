@@ -221,7 +221,9 @@ module SalesforceArSync
 
     private
 
-    # Multi-picklists in the SF Rest API
+    # Multi-picklists in the SF Rest API are expected to be in a semicolon separated list
+    # This method converts all attribute that are arrays into these values
+    # Eg. ["A","B","C"]  =>  "A;B;C"
     def format_attributes(attributes)
       attributes.each do |k,v|
         attributes[k] = v.join(";") if v.is_a?(Array)
