@@ -8,3 +8,5 @@
 # Version 1.1.3
 * Adds support for outbound deletions
 * Adds ability to configure inbound/outbound deletions on a per model basis
+# Version 1.1.4
+* Fix issue with multi-select picklists introduced when using REST API
