@@ -14,7 +14,7 @@ plugin_test_dir = File.dirname(__FILE__)
 
 # Load sqlite3 mem database for testing
 ActiveRecord::Base.configurations = YAML::load_file(File.join(plugin_test_dir, "db", "database.yml"))
-ActiveRecord::Base.establish_connection(ENV["DB"] || "sqlite3mem")
+ActiveRecord::Base.establish_connection((ENV["DB"] || "sqlite3mem").to_sym)
 ActiveRecord::Migration.verbose = false
 load(File.join(plugin_test_dir, "db", "schema.rb"))
 
@@ -30,8 +30,6 @@ VCR.configure do |c|
 end
 
 RSpec.configure do |c|
-  c.treat_symbols_as_metadata_keys_with_true_values = true
-
   #for each test that makes a request use a tape based on it's name
   c.around(:each, :vcr) do |example|
     name = example.metadata[:full_description].split(/\s+/, 2).join("/").underscore.gsub(/[^\w\/]+/, "_")

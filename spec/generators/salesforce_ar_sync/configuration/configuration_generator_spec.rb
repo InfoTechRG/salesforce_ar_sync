@@ -11,7 +11,7 @@ describe SalesforceArSync::Generators::ConfigurationGenerator do
 
   it 'should run the create_yaml task' do
     gen = generator
-    gen.should_receive :create_yaml
+    expect(gen).to receive :create_yaml
     capture(:stdout) {gen.invoke_all}
   end
   
@@ -20,8 +20,8 @@ describe SalesforceArSync::Generators::ConfigurationGenerator do
     
     before  { run_generator }
     
-    it { should contain "organization_id: #18 character organization_id" }
-    it { should contain "sync_enabled: true" }
+    it { is_expected.to contain "organization_id: #18 character organization_id" }
+    it { is_expected.to contain "sync_enabled: true" }
   end
 
   describe 'creating a single YAML file with an organization id' do
@@ -29,7 +29,7 @@ describe SalesforceArSync::Generators::ConfigurationGenerator do
     
     before  { run_generator %w{123456789123456789} }
 
-    it { should contain "organization_id: 123456789123456789" }
-    it { should contain "sync_enabled: true" }
+    it { is_expected.to contain "organization_id: 123456789123456789" }
+    it { is_expected.to contain "sync_enabled: true" }
   end
 end
