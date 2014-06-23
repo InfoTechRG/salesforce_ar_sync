@@ -7,11 +7,12 @@ Outbound Messaging, SOAP and databasedotcom.
 
 ### Requirements
 
-* Rails ~> 3.1
+* Rails >= 3.1
 * Salesforce.com instance
 * [Have your 18 character organization id ready](#finding-your-18-character-organization-id)
 * databasedotcom gem >= 1.3 installed and configured [see below](#databasedotcom)
 * delayed_job gem >= 3.0 installed and configured
+* actionpack-xml_parser gem installed(if using Rails >= 4.0) [see below](#actionpack-xml_parser)
 
 ### Salesforce Setup
 
@@ -50,6 +51,16 @@ $sf_client.authenticate :username => <username>, :password => <password>
 module SalesforceArSync::SalesforceSync
   SF_CLIENT = $sf_client
 end
+````
+
+### actionpack-xml_parser
+Rails 4.0 removed support for parsing XML parameters form the request. However, the salesforce_ar_sync gem depends on this for handling Outbound Messages from Salesforce. If you are using salesforce_ar_sync with Rails >= 4.0, you will need to add the [actionpack-xml_parser](https://github.com/rails/actionpack-xml_parser) gem to your Gemfile:
+
+`gem 'actionpack-xml_parser'`
+
+You then need to add the following line to `config/application.rb`:
+````ruby
+config.middleware.insert_after ActionDispatch::ParamsParser, ActionDispatch::XmlParamsParser
 ````
 
 ### Gem Installation
