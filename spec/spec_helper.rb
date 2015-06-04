@@ -6,6 +6,7 @@ require 'databasedotcom'
 require 'rspec'
 require 'ammeter/init'
 require 'vcr'
+require 'byebug'
 
 # Configure Rails Environment
 ENV["RAILS_ENV"] = "test"

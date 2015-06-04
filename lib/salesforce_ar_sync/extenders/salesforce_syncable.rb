@@ -1,6 +1,6 @@
 module SalesforceArSync
   module Extenders
-    module SalesforceSyncable      
+    module SalesforceSyncable
       def salesforce_syncable(options = {})
         require 'salesforce_ar_sync/salesforce_sync'
         include SalesforceArSync::SalesforceSync
@@ -11,6 +11,7 @@ module SalesforceArSync
         self.salesforce_default_attributes_for_create = options.has_key?(:default_attributes_for_create) ? options[:default_attributes_for_create] : {}
         self.salesforce_id_attribute_name = options.has_key?(:salesforce_id_attribute_name) ? options[:salesforce_id_attribute_name] : :Id
         self.salesforce_web_id_attribute_name = options.has_key?(:web_id_attribute_name) ? options[:web_id_attribute_name] : :WebId__c
+        self.activerecord_web_id_attribute_name = options.has_key?(:activerecord_web_id_attribute_name) ? options[:activerecord_web_id_attribute_name] : nil
         self.salesforce_sync_web_id = options.has_key?(:salesforce_sync_web_id) ? options[:salesforce_sync_web_id] : false
         self.salesforce_web_class_name = options.has_key?(:web_class_name) ? options[:web_class_name] : self.name
 
@@ -19,17 +20,17 @@ module SalesforceArSync
 
         self.salesforce_object_name_method = options.has_key?(:salesforce_object_name) ? options[:salesforce_object_name] : nil
         self.salesforce_skip_sync_method = options.has_key?(:except) ? options[:except] : nil
-        
+
         instance_eval do
           before_save :salesforce_sync
           after_create :sync_web_id
           after_commit :salesforce_delete_object, on: :destroy
-          
+
           def salesforce_sync_web_id?
             self.salesforce_sync_web_id
           end
         end
-        
+
         class_eval do
           # Calls a method if provided to return the name of the Salesforce object the model is syncing to.
           # If no method is provided, defaults to the class name
@@ -37,8 +38,8 @@ module SalesforceArSync
             return send(self.class.salesforce_object_name_method) if self.class.salesforce_object_name_method.present?
             return self.class.name
           end
-          
-          # Calls a method, if provided, to determine if a record should be synced to Salesforce. 
+
+          # Calls a method, if provided, to determine if a record should be synced to Salesforce.
           # The salesforce_skip_sync instance variable is also used.
           # The SALESFORCE_AR_SYNC_ENABLED flag overrides all the others if set to false
           def salesforce_skip_sync?
