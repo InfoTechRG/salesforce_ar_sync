@@ -57,8 +57,8 @@ module SalesforceArSync
       def salesforce_update(attributes={})
         raise ArgumentError, "#{salesforce_id_attribute_name} parameter required" if attributes[salesforce_id_attribute_name].blank?
 
-        object = self.find_by_salesforce_id attributes[salesforce_id_attribute_name]
-        object ||= self.find_by(activerecord_web_id_attribute_name || :id => attributes[salesforce_web_id_attribute_name]) if salesforce_sync_web_id? && attributes[salesforce_web_id_attribute_name]
+        object = self.find_by(salesforce_id: attributes[salesforce_id_attribute_name])
+        object ||= self.find_by(activerecord_web_id_attribute_name => attributes[salesforce_web_id_attribute_name]) if salesforce_sync_web_id? && attributes[salesforce_web_id_attribute_name]
 
         if object.nil?
           object = self.new
@@ -221,7 +221,7 @@ module SalesforceArSync
     end
 
     def web_id
-      self[self.class.activerecord_web_id_attribute_name] || id
+      self.send(self.class.activerecord_web_id_attribute_name)
     end
 
     private

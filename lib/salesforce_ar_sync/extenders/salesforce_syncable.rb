@@ -11,7 +11,7 @@ module SalesforceArSync
         self.salesforce_default_attributes_for_create = options.has_key?(:default_attributes_for_create) ? options[:default_attributes_for_create] : {}
         self.salesforce_id_attribute_name = options.has_key?(:salesforce_id_attribute_name) ? options[:salesforce_id_attribute_name] : :Id
         self.salesforce_web_id_attribute_name = options.has_key?(:web_id_attribute_name) ? options[:web_id_attribute_name] : :WebId__c
-        self.activerecord_web_id_attribute_name = options.has_key?(:activerecord_web_id_attribute_name) ? options[:activerecord_web_id_attribute_name] : nil
+        self.activerecord_web_id_attribute_name = options.has_key?(:activerecord_web_id_attribute_name) ? options[:activerecord_web_id_attribute_name] : :id
         self.salesforce_sync_web_id = options.has_key?(:salesforce_sync_web_id) ? options[:salesforce_sync_web_id] : false
         self.salesforce_web_class_name = options.has_key?(:web_class_name) ? options[:web_class_name] : self.name
 

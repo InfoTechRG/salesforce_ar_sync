@@ -23,7 +23,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "vcr"
   gem.add_development_dependency "ammeter", '>= 1.1.2'
   gem.add_development_dependency "sqlite3"
-  gem.add_development_dependency "byebug"
 
   gem.add_runtime_dependency "databasedotcom"
 end
