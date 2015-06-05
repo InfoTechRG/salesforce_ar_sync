@@ -217,10 +217,10 @@ module SalesforceArSync
 
     def sync_web_id
       return false if !self.class.salesforce_sync_web_id? || self.salesforce_skip_sync?
-      SF_CLIENT.http_patch("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}/#{salesforce_id}", { self.class.salesforce_web_id_attribute_name.to_s => web_id }.to_json) if salesforce_id
+      SF_CLIENT.http_patch("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}/#{salesforce_id}", { self.class.salesforce_web_id_attribute_name.to_s => get_activerecord_web_id }.to_json) if salesforce_id
     end
 
-    def web_id
+    def get_activerecord_web_id
       self.send(self.class.activerecord_web_id_attribute_name)
     end
 

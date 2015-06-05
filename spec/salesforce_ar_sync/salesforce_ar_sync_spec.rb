@@ -436,11 +436,11 @@ describe SalesforceArSync, :vcr do
       end
     end
   end
-  describe '#web_id' do
+  describe '#get_activerecord_web_id' do
     context 'no custom web id' do
       it 'returns the id' do
         contact = Contact.new(id: 1)
-        expect(contact.web_id).to eq 1
+        expect(contact.get_activerecord_web_id).to eq 1
       end
     end
     context 'custom web id' do
@@ -449,7 +449,7 @@ describe SalesforceArSync, :vcr do
         allow(Contact).to receive(:salesforce_sync_web_id?).and_return(true)
         allow(Contact).to receive(:activerecord_web_id_attribute_name).and_return(:last_name)
 
-        expect(contact.web_id).to eq "Johnson"
+        expect(contact.get_activerecord_web_id).to eq "Johnson"
       end
     end
   end
