@@ -148,17 +148,17 @@ initializer loads the ENV settings.
 ### Model Options
 The model can have several options set:
 
-[__salesforce_sync_enabled__](#salesforce_sync_enabled)
-[__sync_attributes__](#sync_attributes)
-[__async_attributes__](#async_attributes)
-[__default_attributes_for_create__](#default_attributes_for_create)
-[__salesforce_id_attribute_name__](#salesforce_id_attribute_name)
-[__web_id_attribute_name__](#web_id_attribute_name)
-[__activerecord_web_id_attribute_name__](#activerecord_web_id_attribute_name)
-[__salesforce_sync_web_id__](#salesforce_sync_web_id)
-[__web_class_name__](#web_class_name)
-[__salesforce_object_name__](#salesforce_object_name)
-[__except__](#except)
+[__salesforce_sync_enabled__](#salesforce_sync_enabled)  
+[__sync_attributes__](#sync_attributes)  
+[__async_attributes__](#async_attributes)  
+[__default_attributes_for_create__](#default_attributes_for_create)  
+[__salesforce_id_attribute_name__](#salesforce_id_attribute_name)  
+[__web_id_attribute_name__](#web_id_attribute_name)  
+[__activerecord_web_id_attribute_name__](#activerecord_web_id_attribute_name)  
+[__salesforce_sync_web_id__](#salesforce_sync_web_id)  
+[__web_class_name__](#web_class_name)  
+[__salesforce_object_name__](#salesforce_object_name)  
+[__except__](#except)  
 
 #### <a id="salesforce_sync_enabled"></a>salesforce_sync_enabled
 Model level option to enable disable the sync, defaults to true.
@@ -210,7 +210,7 @@ The field name of the web id attribute in the Salesforce Object, defaults to _We
 ````
 
 #### activerecord_web_id_attribute_name
-The field name of the web id attribute in the ActiveRecord Object, defaults to id
+The field name of the web id attribute in the Active Record Object, defaults to id
 
 ````ruby
 :activerecord_web_id_attribute_name  => :id
