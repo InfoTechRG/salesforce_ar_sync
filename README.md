@@ -7,12 +7,11 @@ Outbound Messaging, SOAP and databasedotcom.
 
 ### Requirements
 
-* Rails >= 4.0
+* Rails ~> 4.0
 * Salesforce.com instance
 * [Have your 18 character organization id ready](#finding-your-18-character-organization-id)
 * databasedotcom gem >= 1.3 installed and configured [see below](#databasedotcom)
 * delayed_job gem >= 3.0 installed and configured
-* actionpack-xml_parser gem installed(if using Rails >= 4.0) [see below](#actionpack-xml_parser)
 
 ### Salesforce Setup
 
@@ -51,16 +50,6 @@ $sf_client.authenticate :username => <username>, :password => <password>
 module SalesforceArSync::SalesforceSync
   SF_CLIENT = $sf_client
 end
-````
-
-### actionpack-xml_parser
-Rails 4.0 removed support for parsing XML parameters form the request. However, the salesforce_ar_sync gem depends on this for handling Outbound Messages from Salesforce. If you are using salesforce_ar_sync with Rails >= 4.0, you will need to add the [actionpack-xml_parser](https://github.com/rails/actionpack-xml_parser) gem to your Gemfile:
-
-`gem 'actionpack-xml_parser'`
-
-You then need to add the following line to `config/application.rb`:
-````ruby
-config.middleware.insert_after ActionDispatch::ParamsParser, ActionDispatch::XmlParamsParser
 ````
 
 ### Gem Installation
@@ -148,17 +137,27 @@ initializer loads the ENV settings.
 ### Model Options
 The model can have several options set:
 
-[__salesforce_sync_enabled__](#salesforce_sync_enabled)  
-[__sync_attributes__](#sync_attributes)  
-[__async_attributes__](#async_attributes)  
-[__default_attributes_for_create__](#default_attributes_for_create)  
-[__salesforce_id_attribute_name__](#salesforce_id_attribute_name)  
-[__web_id_attribute_name__](#web_id_attribute_name)  
-[__activerecord_web_id_attribute_name__](#activerecord_web_id_attribute_name)  
-[__salesforce_sync_web_id__](#salesforce_sync_web_id)  
-[__web_class_name__](#web_class_name)  
-[__salesforce_object_name__](#salesforce_object_name)  
-[__except__](#except)  
+[__salesforce_sync_enabled__](#salesforce_sync_enabled)
+
+[__sync_attributes__](#sync_attributes)
+
+[__async_attributes__](#async_attributes)
+
+[__default_attributes_for_create__](#default_attributes_for_create)
+
+[__salesforce_id_attribute_name__](#salesforce_id_attribute_name)
+
+[__web_id_attribute_name__](#web_id_attribute_name)
+
+[__activerecord_web_id_attribute_name__](#activerecord_web_id_attribute_name)
+
+[__salesforce_sync_web_id__](#salesforce_sync_web_id)
+
+[__web_class_name__](#web_class_name)
+
+[__salesforce_object_name__](#salesforce_object_name)
+
+[__except__](#except)
 
 #### <a id="salesforce_sync_enabled"></a>salesforce_sync_enabled
 Model level option to enable disable the sync, defaults to true.
