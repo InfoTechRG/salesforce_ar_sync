@@ -10,3 +10,6 @@
 * Adds ability to configure inbound/outbound deletions on a per model basis
 # Version 1.1.4
 * Fix issue with multi-select picklists introduced when using REST API
+# Version 2.0.0
+* Add active record web id field
+* Moved from Rails 3 to Rails 4
