@@ -14,15 +14,16 @@ Gem::Specification.new do |gem|
   gem.name          = "salesforce_ar_sync"
   gem.require_paths = ["lib"]
   gem.version       = SalesforceArSync::VERSION
-  
-  gem.add_dependency "rails", "~> 3.1"
-    
+
+  gem.add_dependency "rails", "~> 4.0"
+  gem.add_dependency 'actionpack-xml_parser'
+
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "webmock"
   gem.add_development_dependency "vcr"
-  gem.add_development_dependency "ammeter", '~> 0.2.8'
+  gem.add_development_dependency "ammeter", '~> 1.1.2'
   gem.add_development_dependency "sqlite3"
-  
+
   gem.add_runtime_dependency "databasedotcom"
 end

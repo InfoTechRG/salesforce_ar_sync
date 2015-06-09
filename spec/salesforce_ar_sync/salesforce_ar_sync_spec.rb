@@ -7,19 +7,19 @@ SalesforceArSync.config["SYNC_ENABLED"] = true
 
 class Contact < ActiveRecord::Base
   salesforce_syncable :sync_attributes => {:FirstName => :first_name, :LastName => :last_name, :Phone => :phone_number, :Email => :email_address}
-  
+
   def phone_number=(new_phone_number)
     self.phone = new_phone_number
   end
-  
+
   def email_address
     self.email
   end
-  
+
   def email_address_changed?
     email_changed?
   end
-  
+
   # Hack for Parsing into the proper Timezone
   def salesforce_updated_at=(updated_at)
     updated_at = Time.parse(updated_at) if updated_at.present? && updated_at.kind_of?(String)
@@ -60,6 +60,7 @@ describe SalesforceArSync, :vcr do
         :default_attributes_for_create => {:password_change_required => true},
         :salesforce_id_attribute_name => :Id,
         :web_id_attribute_name  => :WebId__c,
+        :activerecord_web_id_attribute_name => :web_id,
         :salesforce_sync_web_id => false,
         :web_class_name => 'Contact',
         :salesforce_object_name => :salesforce_object_name_method_name,
@@ -67,81 +68,112 @@ describe SalesforceArSync, :vcr do
         :sync_inbound_delete => false,
         :sync_outbound_delete => :outbound_delete_method_name
     end
-    
+
     it 'should assign values from the options hash to model attributes' do
-      TestSyncable.salesforce_sync_enabled.should eq(false)
-      TestSyncable.salesforce_sync_attribute_mapping.should eq({"FirstName" => :first_name, "LastName" => :last_name})
-      TestSyncable.salesforce_async_attributes.should eq(["Last_Login__c", "Login_Count__c"])
-      TestSyncable.salesforce_default_attributes_for_create.should eq({:password_change_required => true})
-      TestSyncable.salesforce_id_attribute_name.should eq(:Id)
-      TestSyncable.salesforce_web_id_attribute_name.should eq(:WebId__c)
-      TestSyncable.salesforce_web_class_name.should eq("Contact")
-      TestSyncable.salesforce_object_name_method.should eq(:salesforce_object_name_method_name)
-      TestSyncable.salesforce_skip_sync_method.should eq(:except_method_name)
-      TestSyncable.sync_inbound_delete.should eq(false)
-      TestSyncable.sync_outbound_delete.should eq(:outbound_delete_method_name)
+      expect(TestSyncable.salesforce_sync_enabled).to eq(false)
+      expect(TestSyncable.salesforce_sync_attribute_mapping).to eq({"FirstName" => :first_name, "LastName" => :last_name})
+      expect(TestSyncable.salesforce_async_attributes).to eq(["Last_Login__c", "Login_Count__c"])
+      expect(TestSyncable.salesforce_default_attributes_for_create).to eq({:password_change_required => true})
+      expect(TestSyncable.salesforce_id_attribute_name).to eq(:Id)
+      expect(TestSyncable.salesforce_web_id_attribute_name).to eq(:WebId__c)
+      expect(TestSyncable.activerecord_web_id_attribute_name).to eq(:web_id)
+      expect(TestSyncable.salesforce_web_class_name).to eq("Contact")
+      expect(TestSyncable.salesforce_object_name_method).to eq(:salesforce_object_name_method_name)
+      expect(TestSyncable.salesforce_skip_sync_method).to eq(:except_method_name)
+      expect(TestSyncable.sync_inbound_delete).to eq(false)
+      expect(TestSyncable.sync_outbound_delete).to eq(:outbound_delete_method_name)
     end
   end
-  
+
   describe 'sync_web_id' do
     it 'returns false if salesforce_skip_sync? is true' do
-      Contact.any_instance.stub(:salesforce_skip_sync?).and_return(true)
-      Contact.stub(:salesforce_sync_web_id?).and_return(true)
-            
-      Contact.new.sync_web_id.should eq(false)
+      allow_any_instance_of(Contact).to receive(:salesforce_skip_sync?).and_return(true)
+      allow(Contact).to receive(:salesforce_sync_web_id?).and_return(true)
+
+      expect(Contact.new.sync_web_id).to eq(false)
     end
   end
 
   describe '.salesforce_update' do
     it 'should raise an exception if the salesforce id is blank' do
-      lambda { Contact.salesforce_update(:Id => '', :FirstName => 'Bob') }.should raise_exception(ArgumentError)
-      lambda { Contact.salesforce_update(:FirstName => 'Bob')}.should raise_exception(ArgumentError)
+      expect { Contact.salesforce_update(:Id => '', :FirstName => 'Bob') }.to raise_exception(ArgumentError)
+      expect { Contact.salesforce_update(:FirstName => 'Bob')}.to raise_exception(ArgumentError)
     end
-  end  
-    
+    it 'looks for records matching salesforce id' do
+      sf_id = 1
+
+      allow(Contact).to receive(:salesforce_sync_web_id?).and_return(false)
+
+      expect(Contact).to receive(:find_by).with({salesforce_id: sf_id})
+      Contact.salesforce_update(Id: sf_id)
+    end
+    it 'looks for records matching salesforce or web id' do
+      sf_id = 1
+      web_id = 20
+
+      allow(Contact).to receive(:salesforce_sync_web_id?).and_return(true)
+
+      expect(Contact).to receive(:find_by).with({salesforce_id: sf_id})
+      expect(Contact).to receive(:find_by).with({id: web_id})
+      Contact.salesforce_update(Id: sf_id, WebId__c: web_id)
+    end
+    it 'looks for records matching salesforce id or with a custom field matching web id' do
+      sf_id = 1
+      web_id = 20
+
+      allow(Contact).to receive(:salesforce_sync_web_id?).and_return(true)
+      allow(Contact).to receive(:activerecord_web_id_attribute_name).and_return(:custom_web_id)
+      allow(Contact).to receive(:custom_web_id).and_return(web_id)
+
+      expect(Contact).to receive(:find_by).with({salesforce_id: sf_id})
+      expect(Contact).to receive(:find_by).with({custom_web_id: web_id})
+      Contact.salesforce_update(Id: sf_id, WebId__c: web_id)
+    end
+  end
+
   describe '.salesforce_id_attribute_name' do
     it "returns the salesforce Id attribute name" do
-      Contact.salesforce_id_attribute_name.should == :Id
+      expect(Contact.salesforce_id_attribute_name).to eq(:Id)
     end
   end
-  
+
   describe '.salesforce_sync_web_id?' do
     it "should default to false" do
-      Contact.salesforce_sync_web_id?.should be_false
+      expect(Contact.salesforce_sync_web_id?).to be_falsey
     end
   end
-  
+
   describe '.salesforce_web_id_attribute_name' do
     it "should default to 'WebId__c'" do
-      Contact.salesforce_web_id_attribute_name.should == :WebId__c
+      expect(Contact.salesforce_web_id_attribute_name).to eq(:WebId__c)
     end
   end
-  
+
   describe '.salesforce_default_attributes_for_create' do
     it "should default to an empty hash" do
-      Contact.salesforce_default_attributes_for_create.should == {}
+      expect(Contact.salesforce_default_attributes_for_create).to eq({})
     end
   end
 
   describe '#salesforce_object_name' do
     it "returns the current class name" do
-      Contact.new.salesforce_object_name.should == "Contact"
+      expect(Contact.new.salesforce_object_name).to eq("Contact")
     end
-    
+
     it "calls a method if one is provided" do
       class User < ActiveRecord::Base
         include ActiveModel::Validations::Callbacks
         extend SalesforceArSync::Extenders::SalesforceSyncable
 
         salesforce_syncable :salesforce_object_name => :custom_name
-        
+
         def custom_name
           "CustomUser"
         end
       end
-      
+
       user = User.new
-      user.salesforce_object_name.should eq("CustomUser")
+      expect(user.salesforce_object_name).to eq("CustomUser")
     end
   end
 
@@ -149,16 +181,16 @@ describe SalesforceArSync, :vcr do
     context 'by default' do
       it 'should return true' do
         contact = Contact.new
-        
-        contact.ar_sync_inbound_delete?.should be_true
+
+        expect(contact.ar_sync_inbound_delete?).to be_truthy
       end
     end
 
     context 'sync_inbound_delete set to true' do
       it 'should return true' do
         contact = Contact.new(:sync_inbound_delete => true)
-        
-        contact.ar_sync_inbound_delete?.should be_true
+
+        expect(contact.ar_sync_inbound_delete?).to be_truthy
       end
     end
 
@@ -176,7 +208,7 @@ describe SalesforceArSync, :vcr do
         end
 
         delete_test = DeleteTest.new
-        delete_test.ar_sync_inbound_delete?.should be_true
+        expect(delete_test.ar_sync_inbound_delete?).to be_truthy
       end
     end
   end
@@ -185,16 +217,16 @@ describe SalesforceArSync, :vcr do
     context 'by default' do
       it 'should return false' do
         contact = Contact.new
-        
-        contact.ar_sync_outbound_delete?.should be_false
+
+        expect(contact.ar_sync_outbound_delete?).to be_falsey
       end
     end
 
     context 'sync_outbound_delete set to false' do
       it 'should return false' do
         contact = Contact.new(:sync_outbound_delete => false)
-        
-        contact.ar_sync_outbound_delete?.should be_false
+
+        expect(contact.ar_sync_outbound_delete?).to be_falsey
       end
     end
 
@@ -212,15 +244,15 @@ describe SalesforceArSync, :vcr do
         end
 
         delete_test = DeleteTest.new
-        delete_test.ar_sync_outbound_delete?.should be_false
+        expect(delete_test.ar_sync_outbound_delete?).to be_falsey
       end
     end
   end
-  
+
   describe 'salesforce_skip_sync?' do
     context 'by default' do
       it 'should return false' do
-        Contact.new.salesforce_skip_sync?.should be_false
+        expect(Contact.new.salesforce_skip_sync?).to be_falsey
       end
     end
 
@@ -228,7 +260,7 @@ describe SalesforceArSync, :vcr do
       it 'should return true' do
         SalesforceArSync.config["SYNC_ENABLED"] = false;
 
-        Contact.new.salesforce_skip_sync?.should be_true
+        expect(Contact.new.salesforce_skip_sync?).to be_truthy
 
         SalesforceArSync.config["SYNC_ENABLED"] = true;
       end
@@ -237,8 +269,8 @@ describe SalesforceArSync, :vcr do
     context 'when salesforce_skip_sync is true on an object' do
       it 'returns true' do
         contact = Contact.new(:salesforce_skip_sync => true)
-        
-        contact.salesforce_skip_sync?.should be_true
+
+        expect(contact.salesforce_skip_sync?).to be_truthy
       end
     end
 
@@ -250,9 +282,9 @@ describe SalesforceArSync, :vcr do
 
           salesforce_syncable :salesforce_sync_enabled => false
         end
-        
+
         sync_test = SyncTest.new
-        sync_test.salesforce_skip_sync?.should be_true
+        expect(sync_test.salesforce_skip_sync?).to be_truthy
       end
 
       it 'returns true if salesforce_skip_sync is set to true on an object' do
@@ -262,13 +294,13 @@ describe SalesforceArSync, :vcr do
 
           salesforce_syncable :salesforce_sync_enabled => false
         end
-        
+
         sync_test = SyncTest.new(:salesforce_skip_sync => true)
-        sync_test.salesforce_skip_sync?.should be_true
+        expect(sync_test.salesforce_skip_sync?).to be_truthy
       end
     end
-    
-    context 'when given a method' do      
+
+    context 'when given a method' do
       it 'returns the methods value' do
         class SyncTest < ActiveRecord::Base
           include ActiveModel::Validations::Callbacks
@@ -280,9 +312,9 @@ describe SalesforceArSync, :vcr do
             return true
           end
         end
-        
+
         sync_test = SyncTest.new
-        sync_test.salesforce_skip_sync?.should be_true
+        expect(sync_test.salesforce_skip_sync?).to be_truthy
       end
 
       it 'returns true if salesforce_sync_enabled is set to false on a class' do
@@ -296,11 +328,11 @@ describe SalesforceArSync, :vcr do
             return false
           end
         end
-        
+
         sync_test = SyncTest.new()
-        sync_test.salesforce_skip_sync?.should be_true
+        expect(sync_test.salesforce_skip_sync?).to be_truthy
       end
-      
+
       it 'returns true if salesforce_skip_sync is set to true on an object' do
         class SyncTest < ActiveRecord::Base
           include ActiveModel::Validations::Callbacks
@@ -312,85 +344,85 @@ describe SalesforceArSync, :vcr do
             return false
           end
         end
-        
+
         sync_test = SyncTest.new(:salesforce_skip_sync => true)
-        sync_test.salesforce_skip_sync?.should be_true
+        expect(sync_test.salesforce_skip_sync?).to be_truthy
       end
     end
   end
-  
+
   describe '#salesforce_attributes_to_set' do
-    
+
     before(:each) do
       @hash = Contact.new.salesforce_attributes_to_set(sample_outbound_message_hash)
     end
-    
+
     it 'hash should include salesforce_updated_at' do
-      @hash[:salesforce_updated_at].should == sample_outbound_message_hash[:SystemModstamp]
+      expect(@hash[:salesforce_updated_at]).to eq(sample_outbound_message_hash[:SystemModstamp])
     end
-    
+
     it 'hash should include salesforce_id' do
-      @hash[:salesforce_id].should == sample_outbound_message_hash[:Id]
+      expect(@hash[:salesforce_id]).to eq(sample_outbound_message_hash[:Id])
     end
-    
+
     it 'hash should only include keys and values in the mapping that we have setters for' do
-      @hash[:first_name].should == sample_outbound_message_hash[:FirstName]
-      @hash[:last_name].should == sample_outbound_message_hash[:LastName]
-      @hash[:phone_number].should == sample_outbound_message_hash[:Phone]
+      expect(@hash[:first_name]).to eq(sample_outbound_message_hash[:FirstName])
+      expect(@hash[:last_name]).to eq(sample_outbound_message_hash[:LastName])
+      expect(@hash[:phone_number]).to eq(sample_outbound_message_hash[:Phone])
     end
-    
+
     it 'hash should only include 5 keys' do
-      @hash.keys.count.should == 5
+      expect(@hash.keys.count).to eq(5)
     end
-    
+
     it 'removes any attribute mapped to "id" as we do not want to set our primary key' do
-      Contact.stub(:salesforce_sync_attribute_mapping).and_return({"WebId__c" => "Id"})
+      allow(Contact).to receive(:salesforce_sync_attribute_mapping).and_return({"WebId__c" => "Id"})
       contact = Contact.new
-            
+
       contact.salesforce_attributes_to_set(sample_outbound_message_hash).tap do |hash|
-        hash[:first_name].should be_nil
+        expect(hash[:first_name]).to be_nil
       end
     end
-    
+
   end
-  
+
   describe '#salesforce_process_update' do
     it 'should update and save record with values passed in to hash' do
       contact = Contact.new(:first_name => "Bob", :last_name => "Smith")
       contact.salesforce_skip_sync = true
       contact.save!
       contact.salesforce_process_update(sample_outbound_message_hash)
-      
-      contact.first_name.should == sample_outbound_message_hash[:FirstName]
-      contact.last_name.should == sample_outbound_message_hash[:LastName]
-      contact.phone.should == sample_outbound_message_hash[:Phone]
-      contact.salesforce_id.should == sample_outbound_message_hash[:Id]
-      contact.salesforce_updated_at.should == Time.parse(sample_outbound_message_hash[:SystemModstamp])
+
+      expect(contact.first_name).to eq(sample_outbound_message_hash[:FirstName])
+      expect(contact.last_name).to eq(sample_outbound_message_hash[:LastName])
+      expect(contact.phone).to eq(sample_outbound_message_hash[:Phone])
+      expect(contact.salesforce_id).to eq(sample_outbound_message_hash[:Id])
+      expect(contact.salesforce_updated_at).to eq(Time.parse(sample_outbound_message_hash[:SystemModstamp]))
     end
-    
+
     it 'should nil out any values not specified in the message from Salesforce' do
       contact = Contact.new(:first_name => "Bob", :last_name => "Smith", :phone => '5195556677')
       contact.salesforce_skip_sync = true
       contact.save!
       contact.salesforce_process_update(sample_partial_outbound_message_hash)
-      
-      contact.phone.should be_nil
-      contact.first_name.should == sample_outbound_message_hash[:FirstName]
-      contact.last_name.should == sample_outbound_message_hash[:LastName]
-      contact.salesforce_id.should == sample_outbound_message_hash[:Id]
-      contact.salesforce_updated_at.should == Time.parse(sample_outbound_message_hash[:SystemModstamp])
+
+      expect(contact.phone).to be_nil
+      expect(contact.first_name).to eq(sample_outbound_message_hash[:FirstName])
+      expect(contact.last_name).to eq(sample_outbound_message_hash[:LastName])
+      expect(contact.salesforce_id).to eq(sample_outbound_message_hash[:Id])
+      expect(contact.salesforce_updated_at).to eq(Time.parse(sample_outbound_message_hash[:SystemModstamp]))
     end
   end
-  
+
   describe '#salesforce_attributes_to_update' do
     context 'when passing include_all as true' do
       it 'returns a hash of all attributes and values included in mapping that have getter methods' do
         contact = Contact.create(:first_name => "Bob", :last_name => "Smith", :phone => "519 555-1212", :email => "bsmith@example.com", :salesforce_skip_sync => true)
         contact.first_name = "Bill"
         contact.salesforce_attributes_to_update(true).tap do |hash|
-          hash["FirstName"].should == "Bill"
-          hash["LastName"].should == "Smith"
-          hash["Email"].should == "bsmith@example.com"
+          expect(hash["FirstName"]).to eq("Bill")
+          expect(hash["LastName"]).to eq("Smith")
+          expect(hash["Email"]).to eq("bsmith@example.com")
         end
       end
     end
@@ -399,9 +431,26 @@ describe SalesforceArSync, :vcr do
         contact = Contact.create(:first_name => "Bob", :last_name => "Smith", :phone => "519 555-1212", :email => "bsmith@example.com", :salesforce_skip_sync => true)
         contact.first_name = "Bill"
         contact.salesforce_attributes_to_update(true).tap do |hash|
-          hash["FirstName"].should == "Bill"
+          expect(hash["FirstName"]).to eq("Bill")
         end
       end
     end
-  end  
+  end
+  describe '#get_activerecord_web_id' do
+    context 'no custom web id' do
+      it 'returns the id' do
+        contact = Contact.new(id: 1)
+        expect(contact.get_activerecord_web_id).to eq 1
+      end
+    end
+    context 'custom web id' do
+      it 'returns the id' do
+        contact = Contact.new(id: 1, last_name: "Johnson")
+        allow(Contact).to receive(:salesforce_sync_web_id?).and_return(true)
+        allow(Contact).to receive(:activerecord_web_id_attribute_name).and_return(:last_name)
+
+        expect(contact.get_activerecord_web_id).to eq "Johnson"
+      end
+    end
+  end
 end
