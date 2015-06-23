@@ -1,7 +1,9 @@
 module SalesforceArSync
   class SoapMessageController < ::ApplicationController
+
+    protect_from_forgery with: :null_session
     before_filter :validate_ip_ranges
-    
+
     def sync_object
       delayed_soap_handler SalesforceArSync::SoapHandler::Base
     end
