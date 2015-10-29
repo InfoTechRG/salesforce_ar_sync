@@ -17,6 +17,7 @@ module SalesforceArSync
 
         self.sync_inbound_delete = options.has_key?(:sync_inbound_delete) ? options[:sync_inbound_delete] : true
         self.sync_outbound_delete = options.has_key?(:sync_outbound_delete) ? options[:sync_outbound_delete] : false
+        self.unscoped_updates = options.has_key?(:unscoped_updates) ? options[:unscoped_updates] : false
 
         self.salesforce_object_name_method = options.has_key?(:salesforce_object_name) ? options[:salesforce_object_name] : nil
         self.salesforce_skip_sync_method = options.has_key?(:except) ? options[:except] : nil

@@ -159,6 +159,8 @@ The model can have several options set:
 
 [__except__](#except)
 
+[__unscoped_updates__](#unscoped_updates)
+
 #### <a id="salesforce_sync_enabled"></a>salesforce_sync_enabled
 Model level option to enable disable the sync, defaults to true.
 
@@ -244,6 +246,14 @@ method is given then only the salesforce_skip_sync attribute is used. Defaults t
 
 ````ruby
 :except => :except_method_name
+````
+
+#### unscoped_updates
+Enable bypassing the default scope when searching for records to update.  This is useful when using a
+soft deletion strategy that can respect SF undeletion.
+
+````ruby
+:unscoped_updates => true
 ````
 
 ### Stopping the Sync
@@ -427,6 +437,16 @@ This is done using the :sync_outbound_delete option, which can take either a boo
 
   def outbound_delete
     return self.is_trial_user?
+  end
+```
+
+### Soft Deletes
+Setting unscoped_updates to true will permit you to find deleted objects to sync changes to.  You can implement virtual attributes matching the
+undelete field in SF to implement the soft deletion strategy of your choosing.  For the paranoia gem:
+
+```ruby
+  def undeleted=(value)
+    restore if value
   end
 ```
 

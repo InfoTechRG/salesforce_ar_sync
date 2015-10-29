@@ -66,7 +66,8 @@ describe SalesforceArSync, :vcr do
         :salesforce_object_name => :salesforce_object_name_method_name,
         :except => :except_method_name,
         :sync_inbound_delete => false,
-        :sync_outbound_delete => :outbound_delete_method_name
+        :sync_outbound_delete => :outbound_delete_method_name,
+        :unscoped_updates => false
     end
 
     it 'should assign values from the options hash to model attributes' do
@@ -82,6 +83,7 @@ describe SalesforceArSync, :vcr do
       expect(TestSyncable.salesforce_skip_sync_method).to eq(:except_method_name)
       expect(TestSyncable.sync_inbound_delete).to eq(false)
       expect(TestSyncable.sync_outbound_delete).to eq(:outbound_delete_method_name)
+      expect(TestSyncable.unscoped_updates).to eq(false)
     end
   end
 
@@ -103,8 +105,9 @@ describe SalesforceArSync, :vcr do
       sf_id = 1
 
       allow(Contact).to receive(:salesforce_sync_web_id?).and_return(false)
+      allow(Contact).to receive(:unscoped_updates?).and_return(false)
 
-      expect(Contact).to receive(:find_by).with({salesforce_id: sf_id})
+      expect(Contact).to receive(:find_by).with(salesforce_id: sf_id)
       Contact.salesforce_update(Id: sf_id)
     end
     it 'looks for records matching salesforce or web id' do
@@ -112,9 +115,10 @@ describe SalesforceArSync, :vcr do
       web_id = 20
 
       allow(Contact).to receive(:salesforce_sync_web_id?).and_return(true)
+      allow(Contact).to receive(:unscoped_updates?).and_return(false)
 
-      expect(Contact).to receive(:find_by).with({salesforce_id: sf_id})
-      expect(Contact).to receive(:find_by).with({id: web_id})
+      expect(Contact).to receive(:find_by).with(salesforce_id: sf_id)
+      expect(Contact).to receive(:find_by).with(id: web_id)
       Contact.salesforce_update(Id: sf_id, WebId__c: web_id)
     end
     it 'looks for records matching salesforce id or with a custom field matching web id' do
@@ -124,11 +128,25 @@ describe SalesforceArSync, :vcr do
       allow(Contact).to receive(:salesforce_sync_web_id?).and_return(true)
       allow(Contact).to receive(:activerecord_web_id_attribute_name).and_return(:custom_web_id)
       allow(Contact).to receive(:custom_web_id).and_return(web_id)
+      allow(Contact).to receive(:unscoped_updates?).and_return(false)
 
-      expect(Contact).to receive(:find_by).with({salesforce_id: sf_id})
-      expect(Contact).to receive(:find_by).with({custom_web_id: web_id})
+      expect(Contact).to receive(:find_by).with(salesforce_id: sf_id)
+      expect(Contact).to receive(:find_by).with(custom_web_id: web_id)
       Contact.salesforce_update(Id: sf_id, WebId__c: web_id)
     end
+
+    it 'looks for unscoped records when unscoped_updates is set' do
+      sf_id = 1
+      contact = Contact.new(salesforce_id: sf_id)
+      allow(Contact).to receive(:unscoped_updates).and_return(true)
+
+      expect(contact).to receive(:salesforce_process_update) { nil }
+      expect(Contact).to receive(:unscoped).and_return(self)
+      expect(self).to receive(:find_by).with(salesforce_id: sf_id).and_return(contact)
+
+      Contact.salesforce_update(Id: sf_id)
+    end
+
   end
 
   describe '.salesforce_id_attribute_name' do

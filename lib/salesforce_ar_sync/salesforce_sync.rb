@@ -39,6 +39,9 @@ module SalesforceArSync
       attr_accessor :sync_inbound_delete
       attr_accessor :sync_outbound_delete
 
+      # Specify whether we should use an unscoped find to update an object (useful with paranoia gem to handle undeletes)
+      attr_accessor :unscoped_updates
+
       attr_accessor :salesforce_web_id_attribute_name
       attr_accessor :salesforce_sync_web_id
       attr_accessor :activerecord_web_id_attribute_name
@@ -56,12 +59,12 @@ module SalesforceArSync
       # Lastly it will create a new record setting it's salesforce_id
       def salesforce_update(attributes={})
         raise ArgumentError, "#{salesforce_id_attribute_name} parameter required" if attributes[salesforce_id_attribute_name].blank?
-
-        object = self.find_by(salesforce_id: attributes[salesforce_id_attribute_name])
-        object ||= self.find_by(activerecord_web_id_attribute_name => attributes[salesforce_web_id_attribute_name]) if salesforce_sync_web_id? && attributes[salesforce_web_id_attribute_name]
+        data_source = unscoped_updates ? unscoped : self
+        object = data_source.find_by(salesforce_id: attributes[salesforce_id_attribute_name])
+        object ||= data_source.find_by(activerecord_web_id_attribute_name => attributes[salesforce_web_id_attribute_name]) if salesforce_sync_web_id? && attributes[salesforce_web_id_attribute_name]
 
         if object.nil?
-          object = self.new
+          object = new
           salesforce_default_attributes_for_create.merge(:salesforce_id => attributes[salesforce_id_attribute_name]).each_pair do |k, v|
             object.send("#{k}=", v)
           end
