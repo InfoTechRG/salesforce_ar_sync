@@ -1,0 +1,8 @@
+test:
+  organization_id: 00D560000000TeStAU
+  sync_enabled: true
+  ip_ranges:
+  namespace_prefix:
+  deletion_map:
+   -
+    Account: 'Vendor'
