@@ -28,25 +28,25 @@ class Contact < ActiveRecord::Base
 end
 
 # the following hash should match the data in SF.com you are testing against
-sample_outbound_message_hash = {
+SAMPLE_OUTBOUND_MESSAGE_HASH = {
   Id: '003A0000014dbEeIAI',
   FirstName: 'Rose',
   LastName: 'Gonzalez',
   Phone: '(512) 757-6000',
   SystemModstamp: '2012-03-26T19:54:50.000Z',
   WebId__c: 68_836
-}
+}.freeze
 
 # this message is missing the Phone field on purpose
 # Salesforce does not include empty fields  in the body
 # of an outbound message
-sample_partial_outbound_message_hash = {
+SAMPLE_PARTIAL_OUTBOUND_MESSAGE_HASH = {
   Id: '003A0000014dbEeIAI',
   FirstName: 'Rose',
   LastName: 'Gonzalez',
   SystemModstamp: '2012-03-26T19:54:50.000Z',
   WebId__c: 68_836
-}
+}.freeze
 
 describe SalesforceArSync, :vcr do
   describe 'salesforce_syncable' do
@@ -373,21 +373,21 @@ describe SalesforceArSync, :vcr do
 
   describe '#salesforce_attributes_to_set' do
     before(:each) do
-      @hash = Contact.new.salesforce_attributes_to_set(sample_outbound_message_hash)
+      @hash = Contact.new.salesforce_attributes_to_set(SAMPLE_OUTBOUND_MESSAGE_HASH)
     end
 
     it 'hash should include salesforce_updated_at' do
-      expect(@hash[:salesforce_updated_at]).to eq(sample_outbound_message_hash[:SystemModstamp])
+      expect(@hash[:salesforce_updated_at]).to eq(SAMPLE_OUTBOUND_MESSAGE_HASH[:SystemModstamp])
     end
 
     it 'hash should include salesforce_id' do
-      expect(@hash[:salesforce_id]).to eq(sample_outbound_message_hash[:Id])
+      expect(@hash[:salesforce_id]).to eq(SAMPLE_OUTBOUND_MESSAGE_HASH[:Id])
     end
 
     it 'hash should only include keys and values in the mapping that we have setters for' do
-      expect(@hash[:first_name]).to eq(sample_outbound_message_hash[:FirstName])
-      expect(@hash[:last_name]).to eq(sample_outbound_message_hash[:LastName])
-      expect(@hash[:phone_number]).to eq(sample_outbound_message_hash[:Phone])
+      expect(@hash[:first_name]).to eq(SAMPLE_OUTBOUND_MESSAGE_HASH[:FirstName])
+      expect(@hash[:last_name]).to eq(SAMPLE_OUTBOUND_MESSAGE_HASH[:LastName])
+      expect(@hash[:phone_number]).to eq(SAMPLE_OUTBOUND_MESSAGE_HASH[:Phone])
     end
 
     it 'hash should only include 5 keys' do
@@ -398,7 +398,7 @@ describe SalesforceArSync, :vcr do
       allow(Contact).to receive(:salesforce_sync_attribute_mapping).and_return('WebId__c' => 'Id')
       contact = Contact.new
 
-      contact.salesforce_attributes_to_set(sample_outbound_message_hash).tap do |hash|
+      contact.salesforce_attributes_to_set(SAMPLE_OUTBOUND_MESSAGE_HASH).tap do |hash|
         expect(hash[:first_name]).to be_nil
       end
     end
@@ -409,26 +409,26 @@ describe SalesforceArSync, :vcr do
       contact = Contact.new(first_name: 'Bob', last_name: 'Smith')
       contact.salesforce_skip_sync = true
       contact.save!
-      contact.salesforce_process_update(sample_outbound_message_hash)
+      contact.salesforce_process_update(SAMPLE_OUTBOUND_MESSAGE_HASH)
 
-      expect(contact.first_name).to eq(sample_outbound_message_hash[:FirstName])
-      expect(contact.last_name).to eq(sample_outbound_message_hash[:LastName])
-      expect(contact.phone).to eq(sample_outbound_message_hash[:Phone])
-      expect(contact.salesforce_id).to eq(sample_outbound_message_hash[:Id])
-      expect(contact.salesforce_updated_at).to eq(Time.parse(sample_outbound_message_hash[:SystemModstamp]))
+      expect(contact.first_name).to eq(SAMPLE_OUTBOUND_MESSAGE_HASH[:FirstName])
+      expect(contact.last_name).to eq(SAMPLE_OUTBOUND_MESSAGE_HASH[:LastName])
+      expect(contact.phone).to eq(SAMPLE_OUTBOUND_MESSAGE_HASH[:Phone])
+      expect(contact.salesforce_id).to eq(SAMPLE_OUTBOUND_MESSAGE_HASH[:Id])
+      expect(contact.salesforce_updated_at).to eq(Time.parse(SAMPLE_OUTBOUND_MESSAGE_HASH[:SystemModstamp]))
     end
 
     it 'should nil out any values not specified in the message from Salesforce' do
       contact = Contact.new(first_name: 'Bob', last_name: 'Smith', phone: '5195556677')
       contact.salesforce_skip_sync = true
       contact.save!
-      contact.salesforce_process_update(sample_partial_outbound_message_hash)
+      contact.salesforce_process_update(SAMPLE_PARTIAL_OUTBOUND_MESSAGE_HASH)
 
       expect(contact.phone).to be_nil
-      expect(contact.first_name).to eq(sample_outbound_message_hash[:FirstName])
-      expect(contact.last_name).to eq(sample_outbound_message_hash[:LastName])
-      expect(contact.salesforce_id).to eq(sample_outbound_message_hash[:Id])
-      expect(contact.salesforce_updated_at).to eq(Time.parse(sample_outbound_message_hash[:SystemModstamp]))
+      expect(contact.first_name).to eq(SAMPLE_OUTBOUND_MESSAGE_HASH[:FirstName])
+      expect(contact.last_name).to eq(SAMPLE_OUTBOUND_MESSAGE_HASH[:LastName])
+      expect(contact.salesforce_id).to eq(SAMPLE_OUTBOUND_MESSAGE_HASH[:Id])
+      expect(contact.salesforce_updated_at).to eq(Time.parse(SAMPLE_OUTBOUND_MESSAGE_HASH[:SystemModstamp]))
     end
   end
 
