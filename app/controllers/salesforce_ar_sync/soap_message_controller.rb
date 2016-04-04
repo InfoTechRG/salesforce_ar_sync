@@ -15,13 +15,11 @@ module SalesforceArSync
     private
 
     def delayed_soap_handler (klass, priority = 90)
-      begin
-        soap_handler = klass.new(SalesforceArSync.config["ORGANIZATION_ID"], params)
-        soap_handler.process_notifications(priority) if soap_handler.sobjects
-        render :xml => soap_handler.generate_response, :status => :created
-      rescue Exception => ex
-        render :xml => soap_handler.generate_response(ex), :status => :created
-      end
+      soap_handler = klass.new(SalesforceArSync.config['ORGANIZATION_ID'], params)
+      soap_handler.process_notifications(priority) if soap_handler.sobjects
+      render xml: soap_handler.generate_response, status: :created
+    rescue => ex
+      render xml: soap_handler.generate_response(ex), status: :created
     end
 
     # to be used in a before_filter, checks ip ranges specified in configuration
