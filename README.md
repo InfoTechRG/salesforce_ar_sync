@@ -137,8 +137,9 @@ initializer loads the ENV settings.
     $ export SALESFORCE_AR_NAMESPACE_PREFIX=my_prefix
 
 An example of adding an aliased object to the deletion map should look like the following:
+
     deletion_map:
-     - 
+     -
       Account: 'YourModelName'
 
 ### Model Options
