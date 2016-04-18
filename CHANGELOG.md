@@ -13,3 +13,5 @@
 # Version 2.0.0
 * Add active record web id field
 * Moved from Rails 3 to Rails 4
+# Version 2.0.1
+* Add the ability to map delete messages to any model without modifying the outbound message in Salesforce
