@@ -34,9 +34,9 @@ module SalesforceArSync
 
       #xml for SFDC response
       #called from soap_message_controller
-      def generate_response(error = nil)      
+      def generate_response(error = nil)
         response = "<Ack>#{sobjects.nil? ? false : true}</Ack>" unless error
-        if error 
+        if error
           response = "<soapenv:Fault><faultcode>soap:Receiver</faultcode><faultstring>#{error.message}</faultstring></soapenv:Fault>"
         end
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><soapenv:Body><notificationsResponse>#{response}</notificationsResponse></soapenv:Body></soapenv:Envelope>"
@@ -45,11 +45,17 @@ module SalesforceArSync
       def self.namespaced(field)
          SalesforceArSync.config["NAMESPACE_PREFIX"].present? ? :"#{SalesforceArSync.config["NAMESPACE_PREFIX"]}__#{field}" : :"#{field}"
       end
-    
+
+      # Get configuration for the in app deletions.
+      # Map to the object within the app if named differently then in SalesForce
+      def self.deletion_map(field)
+        SalesforceArSync.config['DELETION_MAP'].fetch(field, field)
+      end
+
       private
 
       def collect_sobjects
-        notification = @xml_hashed["Envelope"]["Body"]["notifications"]["Notification"] 
+        notification = @xml_hashed["Envelope"]["Body"]["notifications"]["Notification"]
         if notification.is_a? Array
           return notification.collect{ |h| h["sObject"].symbolize_keys}
         else
