@@ -139,7 +139,6 @@ initializer loads the ENV settings.
 An example of adding an aliased object to the deletion map should look like the following:
 
     deletion_map:
-     -
       Account: 'YourModelName'
 
 ### Model Options
