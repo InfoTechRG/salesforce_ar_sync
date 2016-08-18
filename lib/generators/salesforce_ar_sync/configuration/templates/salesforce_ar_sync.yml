@@ -2,7 +2,7 @@ production:
   organization_id: <%= @organization_id %>
   sync_enabled: true
   # Salesforce owned IPs from: https://help.salesforce.com/apex/HTViewSolution?language=en_US&id=000003652
-  ip_ranges: "204.14.232.0/23,204.14.237.0/24,96.43.144.0/22,96.43.148.0/22,204.14.234.0/23,204.14.238.0/23,182.50.76.0/22"
+  ip_ranges: "13.108.0.0/14,96.43.144.0/20,136.146.0.0/15,204.14.232.0/21,85.222.128.0/19,185.79.140.0/22,101.53.160.0/19,182.50.76.0/22,202.129.242.0/23"
   namespace_prefix:
   deletion_map:
 
@@ -10,7 +10,7 @@ development:
   organization_id: <%= @organization_id %>
   sync_enabled: false
   # Salesforce owned IPs from: https://help.salesforce.com/apex/HTViewSolution?language=en_US&id=000003652
-  ip_ranges: "204.14.232.0/23,204.14.237.0/24,96.43.144.0/22,96.43.148.0/22,204.14.234.0/23,204.14.238.0/23,182.50.76.0/22"
+  ip_ranges: "13.108.0.0/14,96.43.144.0/20,136.146.0.0/15,204.14.232.0/21,85.222.128.0/19,185.79.140.0/22,101.53.160.0/19,182.50.76.0/22,202.129.242.0/23"
   namespace_prefix:
   deletion_map:
 
@@ -18,6 +18,6 @@ test:
   organization_id: <%= @organization_id %>
   sync_enabled: false
   # Salesforce owned IPs from: https://help.salesforce.com/apex/HTViewSolution?language=en_US&id=000003652
-  ip_ranges: "204.14.232.0/23,204.14.237.0/24,96.43.144.0/22,96.43.148.0/22,204.14.234.0/23,204.14.238.0/23,182.50.76.0/22"
+  ip_ranges: "13.108.0.0/14,96.43.144.0/20,136.146.0.0/15,204.14.232.0/21,85.222.128.0/19,185.79.140.0/22,101.53.160.0/19,182.50.76.0/22,202.129.242.0/23"
   namespace_prefix:
   deletion_map:
