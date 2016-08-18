@@ -15,3 +15,5 @@
 * Moved from Rails 3 to Rails 4
 # Version 2.0.1
 * Add the ability to map delete messages to any model without modifying the outbound message in Salesforce
+# Version 2.0.2
+* Updated IP address ranges for Salesforce.
