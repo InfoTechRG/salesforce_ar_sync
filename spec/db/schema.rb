@@ -8,7 +8,7 @@ ActiveRecord::Schema.define(:version => 1) do
     t.datetime :salesforce_updated_at
     t.string :sync_inbound_delete
     t.string :sync_outbound_delete
-    t.timestamps
+    t.timestamps null: true
   end
 
   create_table 'vendors', force: true do |t|
@@ -21,14 +21,14 @@ ActiveRecord::Schema.define(:version => 1) do
   end
 
   create_table "users", :force => true do |t|
-    t.timestamps
+    t.timestamps null: true
   end
 
   create_table "delete_tests", :force => true do |t|
-    t.timestamps
+    t.timestamps null: true
   end
 
   create_table "sync_tests", :force => true do |t|
-    t.timestamps
+    t.timestamps null: true
   end
 end

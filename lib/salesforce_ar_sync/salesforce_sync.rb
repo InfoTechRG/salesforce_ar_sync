@@ -163,7 +163,10 @@ module SalesforceArSync
     end
 
     def is_boolean?(attribute)
-      self.column_for_attribute(attribute) && self.column_for_attribute(attribute).type == :boolean
+      if self.class.respond_to?(:columns_hash)
+        column = self.class.columns_hash[attribute.to_s]
+        column && column.type == :boolean
+      end
     end
 
     def salesforce_create_object(attributes)
