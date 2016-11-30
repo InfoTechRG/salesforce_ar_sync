@@ -18,7 +18,8 @@ module SalesforceArSync
 
         #if we have ENV flags prefer them
         SalesforceArSync.config["ORGANIZATION_ID"] = ENV["SALESFORCE_AR_SYNC_ORGANIZATION_ID"] if ENV["SALESFORCE_AR_SYNC_ORGANIZATION_ID"]
-        SalesforceArSync.config["SYNC_ENABLED"] = ENV["SALESFORCE_AR_SYNC_SYNC_ENABLED"] if ENV.include? "SALESFORCE_AR_SYNC_SYNC_ENABLED"
+        # env variables are usually strings so make sure, that SYNC_ENABLED is set to boolean ("false" is truthy)
+        SalesforceArSync.config["SYNC_ENABLED"] = [true, "true"].include?(ENV["SALESFORCE_AR_SYNC_SYNC_ENABLED"]) if ENV.include? "SALESFORCE_AR_SYNC_SYNC_ENABLED"
         SalesforceArSync.config["IP_RANGES"] = ENV["SALESFORCE_AR_SYNC_IP_RANGES"].split(',').map{ |ip| ip.strip } if ENV["SALESFORCE_AR_SYNC_IP_RANGES"]
         SalesforceArSync.config["NAMESPACE_PREFIX"] = ENV["SALESFORCE_AR_NAMESPACE_PREFIX"] if ENV["SALESFORCE_AR_NAMESPACE_PREFIX"]
         SalesforceArSync.config['DELETION_MAP'] = ENV['DELETION_MAP'] if ENV['DELETION_MAP']
