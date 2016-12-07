@@ -129,6 +129,7 @@ module SalesforceArSync
 
     # Finds a salesforce record by its Id and returns nil or its SystemModstamp
     def system_mod_stamp
+      return nil if !salesforce_id
       hash = JSON.parse(SF_CLIENT.http_get("/services/data/v#{SF_CLIENT.version}/query", :q => "SELECT SystemModstamp FROM #{salesforce_object_name} WHERE Id = '#{salesforce_id}'").body)
       hash["records"].first.try(:[], "SystemModstamp")
     end
