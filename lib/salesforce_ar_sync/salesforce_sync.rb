@@ -62,7 +62,6 @@ module SalesforceArSync
         data_source = unscoped_updates ? unscoped : self
         object = data_source.find_by(salesforce_id: attributes[salesforce_id_attribute_name])
         object ||= data_source.find_by(activerecord_web_id_attribute_name => attributes[salesforce_web_id_attribute_name]) if salesforce_sync_web_id? && attributes[salesforce_web_id_attribute_name]
-
         if object.nil?
           object = new
           salesforce_default_attributes_for_create.merge(:salesforce_id => attributes[salesforce_id_attribute_name]).each_pair do |k, v|
@@ -214,7 +213,9 @@ module SalesforceArSync
         if salesforce_object_exists?
           salesforce_update_object(salesforce_attributes_to_update) if salesforce_attributes_to_update.present?
         else
-          salesforce_create_object(salesforce_attributes_to_update(!new_record?)) if salesforce_id.nil?
+          # if salesforce object doesn't exist yet we need to pass all attributes
+          # salesforce_create_object(salesforce_attributes_to_update(!new_record?)) if salesforce_id.nil?
+          salesforce_create_object(salesforce_attributes_to_update(true)) if salesforce_id.nil?
         end
       end
     rescue Exception => ex
