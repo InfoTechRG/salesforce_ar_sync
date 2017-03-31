@@ -46,6 +46,9 @@ module SalesforceArSync
       attr_accessor :salesforce_sync_web_id
       attr_accessor :activerecord_web_id_attribute_name
 
+      #Optionally can specify what fields can be used for finding the object that should be updated
+      attr_accessor :additional_lookup_fields
+
       # Optionally holds the name of a method which will return the name of the Salesforce object to sync to
       attr_accessor :salesforce_object_name_method
 
@@ -62,6 +65,10 @@ module SalesforceArSync
         data_source = unscoped_updates ? unscoped : self
         object = data_source.find_by(salesforce_id: attributes[salesforce_id_attribute_name])
         object ||= data_source.find_by(activerecord_web_id_attribute_name => attributes[salesforce_web_id_attribute_name]) if salesforce_sync_web_id? && attributes[salesforce_web_id_attribute_name]
+        
+        additional_lookup_fields.each do |attribute_name, salesforce_attribute_name|
+          object = data_source.find_by(attribute_name => attributes[salesforce_attribute_name]) if attributes[salesforce_attribute_name]
+        end if !object && additional_lookup_fields
 
         if object.nil?
           object = new
