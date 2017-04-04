@@ -232,6 +232,14 @@ Enable or disable sync of the web id, defaults to false. Use this if you have a 
 :salesforce_sync_web_id => false
 ````
 
+#### additional_lookup_fields
+Optionally can specify what fields can be used for finding the object that should be updated if object was not found by salesforce id or web id
+
+````ruby
+additional_lookup_fields: { login: :User_ID_Email__c }
+````
+
+
 #### web_class_name
 The name of the Web Objects class. A custom value can be provided if you wish to sync to a SF object and back to a
 different web object. Defaults to the model name. This would generally be used if you wanted to flatten a web object
