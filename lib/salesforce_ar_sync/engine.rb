@@ -13,7 +13,7 @@ module SalesforceArSync
           SalesforceArSync.config["SYNC_ENABLED"] = config['sync_enabled']
           SalesforceArSync.config["IP_RANGES"] = config['ip_ranges'].split(',').map{ |ip| ip.strip }
           SalesforceArSync.config["NAMESPACE_PREFIX"] = config['namespace_prefix']
-          SalesforceArSync.config['DELETION_MAP'] = config['deletion_map'].stringify_keys
+          SalesforceArSync.config['DELETION_MAP'] = config['deletion_map'].stringify_keys if config['deletion_map']
         end
 
         #if we have ENV flags prefer them
