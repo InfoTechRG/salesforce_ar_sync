@@ -15,6 +15,7 @@ module SalesforceArSync
           SalesforceArSync.config["IP_RANGES"] = config['ip_ranges'].split(',').map{ |ip| ip.strip }
           SalesforceArSync.config["NAMESPACE_PREFIX"] = config['namespace_prefix']
           SalesforceArSync.config['DELETION_MAP'] = config['deletion_map'].stringify_keys
+          SalesforceArSync.config['DELAYED_TASKS_PRIORITY'] = config['delayed_tasks_priority']
         end
 
         #if we have ENV flags prefer them
