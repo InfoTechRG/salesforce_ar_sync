@@ -112,6 +112,9 @@ The options available to configure are
 * __sync_enabled__: a global sync enabled flag which is a boolean true/false
 * __namespace_prefix__: Namespace prefix of your Salesforce app in case you specified one
 * __deletion_map__: Salesforce object names mapped to internal app name.
+* __delayed_tasks_priorities__: priorities for delayed jobs that apply changes from salesforce to your app
+     __default__: default_priority
+     __other_key__: you can provide different priorities for different models
 
 To generate a YAML file
 
