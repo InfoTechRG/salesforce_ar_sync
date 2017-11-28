@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = SalesforceArSync::VERSION
 
-  gem.add_dependency "rails", "~> 5.0"
+  gem.add_dependency "rails", "> 4"
   gem.add_dependency 'actionpack-xml_parser'
 
   gem.add_development_dependency "rake"
