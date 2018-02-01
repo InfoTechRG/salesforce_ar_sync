@@ -67,7 +67,8 @@ describe SalesforceArSync, :vcr do
         :except => :except_method_name,
         :sync_inbound_delete => false,
         :sync_outbound_delete => :outbound_delete_method_name,
-        :unscoped_updates => false
+        :unscoped_updates => false,
+        :additional_lookup_fields => {:login => :User_ID_Email__c}
     end
 
     it 'should assign values from the options hash to model attributes' do
@@ -84,6 +85,7 @@ describe SalesforceArSync, :vcr do
       expect(TestSyncable.sync_inbound_delete).to eq(false)
       expect(TestSyncable.sync_outbound_delete).to eq(:outbound_delete_method_name)
       expect(TestSyncable.unscoped_updates).to eq(false)
+      expect(TestSyncable.additional_lookup_fields).to eq({:login => :User_ID_Email__c})
     end
   end
 
@@ -133,6 +135,16 @@ describe SalesforceArSync, :vcr do
       expect(Contact).to receive(:find_by).with(salesforce_id: sf_id)
       expect(Contact).to receive(:find_by).with(custom_web_id: web_id)
       Contact.salesforce_update(Id: sf_id, WebId__c: web_id)
+    end
+
+    it 'looks for records by additional_lookup_fields when not found by SF id or web id', focus: true do
+      allow(Contact).to receive(:salesforce_sync_web_id?).and_return(true)
+      allow(Contact).to receive(:additional_lookup_fields).and_return({login: :User_ID_Email__c})
+
+      expect(Contact).to receive(:find_by).with(salesforce_id: 1)
+      expect(Contact).to receive(:find_by).with(id: 1)
+      expect(Contact).to receive(:find_by).with(login: 'test@test.com')
+      Contact.salesforce_update(Id: 1, WebId__c: 1, User_ID_Email__c: 'test@test.com')
     end
 
     it 'looks for unscoped records when unscoped_updates is set' do
