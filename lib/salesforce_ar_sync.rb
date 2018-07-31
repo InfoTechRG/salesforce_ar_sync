@@ -5,7 +5,6 @@ require 'salesforce_ar_sync/salesforce_object_sync'
 require 'salesforce_ar_sync/soap_handler/base'
 require 'salesforce_ar_sync/soap_handler/delete'
 require 'salesforce_ar_sync/ip_constraint'
-require 'salesforce_ar_sync/railtie'
 
 module SalesforceArSync
   mattr_accessor :app_root
