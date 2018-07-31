@@ -1,8 +1,7 @@
 module SalesforceArSync
   class SoapMessageController < ::ApplicationController
-
     protect_from_forgery with: :null_session
-    before_filter :validate_ip_ranges
+    before_action :validate_ip_ranges
 
     def sync_object
       delayed_soap_handler SalesforceArSync::SoapHandler::Base
@@ -24,7 +23,7 @@ module SalesforceArSync
       end
     end
 
-    # to be used in a before_filter, checks ip ranges specified in configuration
+    # to be used in a before_action, checks ip ranges specified in configuration
     # and renders a 404 unless the request matches
     def validate_ip_ranges
       raise ActionController::RoutingError.new('Not Found') unless SalesforceArSync::IPConstraint.new.matches?(request)
