@@ -1,3 +1,3 @@
 module SalesforceArSync
-  VERSION = "2.1.1"
+  VERSION = '3.0'
 end
