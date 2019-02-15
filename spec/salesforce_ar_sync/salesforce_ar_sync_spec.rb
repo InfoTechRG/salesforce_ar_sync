@@ -65,6 +65,7 @@ describe SalesforceArSync, :vcr do
         :web_class_name => 'Contact',
         :salesforce_object_name => :salesforce_object_name_method_name,
         :except => :except_method_name,
+        :save_method => :save_method_name,
         :sync_inbound_delete => false,
         :sync_outbound_delete => :outbound_delete_method_name,
         :unscoped_updates => false,
@@ -82,6 +83,7 @@ describe SalesforceArSync, :vcr do
       expect(TestSyncable.salesforce_web_class_name).to eq("Contact")
       expect(TestSyncable.salesforce_object_name_method).to eq(:salesforce_object_name_method_name)
       expect(TestSyncable.salesforce_skip_sync_method).to eq(:except_method_name)
+      expect(TestSyncable.salesforce_save_method).to eq(:save_method_name)
       expect(TestSyncable.sync_inbound_delete).to eq(false)
       expect(TestSyncable.sync_outbound_delete).to eq(:outbound_delete_method_name)
       expect(TestSyncable.unscoped_updates).to eq(false)
@@ -441,6 +443,31 @@ describe SalesforceArSync, :vcr do
       expect(contact.last_name).to eq(sample_outbound_message_hash[:LastName])
       expect(contact.salesforce_id).to eq(sample_outbound_message_hash[:Id])
       expect(contact.salesforce_updated_at).to eq(Time.parse(sample_outbound_message_hash[:SystemModstamp]))
+    end
+
+    it 'should save with #save! if no save_method is given' do
+      class ProcessUpdateTest < ActiveRecord::Base
+        include ActiveModel::Validations::Callbacks
+        extend SalesforceArSync::Extenders::SalesforceSyncable
+        salesforce_syncable
+      end
+
+      process_update_test = ProcessUpdateTest.new
+      expect(process_update_test).to receive(:save!)
+      process_update_test.salesforce_process_update
+    end
+
+    it 'should use save with the value of save_method if it is provided' do
+      class ProcessUpdateTest < ActiveRecord::Base
+        include ActiveModel::Validations::Callbacks
+        extend SalesforceArSync::Extenders::SalesforceSyncable
+
+        salesforce_syncable :save_method => :save_method_name
+      end
+
+      process_update_test = ProcessUpdateTest.new
+      expect(process_update_test).to receive(:save_method_name)
+      process_update_test.salesforce_process_update
     end
   end
 

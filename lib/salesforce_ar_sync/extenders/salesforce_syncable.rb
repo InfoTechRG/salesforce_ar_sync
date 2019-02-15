@@ -21,6 +21,7 @@ module SalesforceArSync
 
         self.salesforce_object_name_method = options.has_key?(:salesforce_object_name) ? options[:salesforce_object_name] : nil
         self.salesforce_skip_sync_method = options.has_key?(:except) ? options[:except] : nil
+        self.salesforce_save_method = options.has_key?(:save_method) ? options[:save_method] : :save!
         self.additional_lookup_fields = options.has_key?(:additional_lookup_fields) ? options[:additional_lookup_fields] : nil
 
         instance_eval do
