@@ -167,6 +167,8 @@ The model can have several options set:
 
 [__except__](#except)
 
+[__save_method__](#save_method)
+
 [__unscoped_updates__](#unscoped_updates)
 
 #### <a id="salesforce_sync_enabled"></a>salesforce_sync_enabled
@@ -262,6 +264,13 @@ method is given then only the salesforce_skip_sync attribute is used. Defaults t
 
 ````ruby
 :except => :except_method_name
+````
+
+#### save_method
+Optionally holds the name of a method which contains custom logic for saving on sync. Defaults to `ActiveRecord::Base#save!`
+
+````ruby
+:save_method => :save_method_name
 ````
 
 #### unscoped_updates
