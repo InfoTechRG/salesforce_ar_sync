@@ -31,4 +31,10 @@ ActiveRecord::Schema.define(:version => 1) do
   create_table "sync_tests", :force => true do |t|
     t.timestamps
   end
+
+  create_table "process_update_tests", :force => true do |t|
+    t.timestamps
+    t.datetime :salesforce_updated_at
+    t.string :salesforce_id
+  end
 end
