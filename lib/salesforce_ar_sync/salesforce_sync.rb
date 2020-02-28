@@ -56,6 +56,10 @@ module SalesforceArSync
       # If no method is given then only the salesforce_skip_sync attribute is used.
       attr_accessor :salesforce_skip_sync_method
 
+      # Optionally holds the name of a method which can provide custom logic for saving a record
+      # If no method is given then `ActiveRecord::Base#save!` is used
+      attr_accessor :salesforce_save_method
+
       # Accepts values from an outbound message hash and will either update an existing record OR create a new record
       # Firstly attempts to find an object by the salesforce_id attribute
       # Secondly attempts to look an object up by it's ID (WebId__c in outbound message)
@@ -127,7 +131,7 @@ module SalesforceArSync
 
       # we don't want to keep going in a endless loop.  SF has just updated these values.
       self.salesforce_skip_sync = true
-      save!
+      self.send(self.class.salesforce_save_method)
     end
 
     #    def salesforce_object_exists?
