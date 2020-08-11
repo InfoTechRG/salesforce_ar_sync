@@ -30,7 +30,7 @@ module SalesforceArSync
           after_commit :salesforce_delete_object, on: :destroy
 
           def salesforce_sync_web_id?
-            self.salesforce_sync_web_id
+            SalesforceArSync.config["SYNC_ENABLED"] == true && self.salesforce_id.present? && self.salesforce_sync_web_id
           end
         end
 
