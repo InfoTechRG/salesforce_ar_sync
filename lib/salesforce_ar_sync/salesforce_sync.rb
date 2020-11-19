@@ -227,7 +227,7 @@ module SalesforceArSync
     end
 
     def sync_web_id
-      return false if !self.class.salesforce_sync_web_id? || salesforce_skip_sync?
+      return false if !self.class.salesforce_sync_web_id? || SalesforceArSync.config['SYNC_ENABLED'] == false
       SF_CLIENT.http_patch("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}/#{salesforce_id}", { self.class.salesforce_web_id_attribute_name.to_s => get_activerecord_web_id }.to_json) if salesforce_id
     end
 
