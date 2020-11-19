@@ -24,6 +24,8 @@ module SalesforceArSync
         self.salesforce_save_method = options.has_key?(:save_method) ? options[:save_method] : :save!
         self.additional_lookup_fields = options.has_key?(:additional_lookup_fields) ? options[:additional_lookup_fields] : nil
 
+        self.readonly_fields = options.fetch(:readonly_fields, [])
+
         instance_eval do
           before_save :salesforce_sync
           after_create :sync_web_id

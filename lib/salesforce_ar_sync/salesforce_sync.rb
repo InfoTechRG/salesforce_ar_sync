@@ -60,6 +60,10 @@ module SalesforceArSync
       # If no method is given then `ActiveRecord::Base#save!` is used
       attr_accessor :salesforce_save_method
 
+      # Optionally holds a list of fields on the model that should not be synced to salesforce
+      # because they are classified as readonly and are calculated on the salesforce side
+      attr_accessor :readonly_fields
+
       # Accepts values from an outbound message hash and will either update an existing record OR create a new record
       # Firstly attempts to find an object by the salesforce_id attribute
       # Secondly attempts to look an object up by it's ID (WebId__c in outbound message)
@@ -165,7 +169,7 @@ module SalesforceArSync
           attribute_value = send(value)
           attribute_value = false if is_boolean?(value) && attribute_value.nil?
 
-          hash[key] = attribute_value if include_all || salesforce_should_update_attribute?(value)
+          hash[key] = attribute_value if !self.class.readonly_fields&.include?(key.to_sym) && (include_all || salesforce_should_update_attribute?(value))
         end
       end
     end

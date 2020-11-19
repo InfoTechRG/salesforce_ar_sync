@@ -4,6 +4,7 @@ ActiveRecord::Schema.define(:version => 1) do
     t.string :last_name
     t.string :phone
     t.string :email
+    t.integer :number_of_posts
     t.string :salesforce_id
     t.datetime :salesforce_updated_at
     t.string :sync_inbound_delete
