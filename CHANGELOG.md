@@ -17,3 +17,6 @@
 * Add the ability to map delete messages to any model without modifying the outbound message in Salesforce
 # Version 2.0.2
 * Updated IP address ranges for Salesforce.
+
+# Version 3.1.1
+* Added ability to specify read only fields for salesforce syncable models so those fields don't try to sync back to Salesforce
