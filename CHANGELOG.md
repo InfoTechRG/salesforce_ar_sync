@@ -18,4 +18,5 @@
 # Version 2.0.2
 * Updated IP address ranges for Salesforce.
 # Version 3.1.1
+* Adds support for Rails 5
 * Added ability to specify readonly fields for salesforce syncable models so those fields don't try to sync back to Salesforce
