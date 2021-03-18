@@ -37,3 +37,33 @@ RSpec.configure do |c|
     VCR.use_cassette(name, options) { example.call }
   end
 end
+
+class Contact < ActiveRecord::Base
+  salesforce_syncable sync_attributes:
+                      {
+                        FirstName: :first_name,
+                        LastName: :last_name,
+                        Phone: :phone_number,
+                        Email: :email_address,
+                        NumberOfPosts__c: :number_of_posts
+                      },
+                      readonly_fields: %i[NumberOfPosts__c]
+
+  def phone_number=(new_phone_number)
+    self.phone = new_phone_number
+  end
+
+  def email_address
+    email
+  end
+
+  def email_address_changed?
+    email_changed?
+  end
+
+  # Hack for Parsing into the proper Timezone
+  def salesforce_updated_at=(updated_at)
+    updated_at = Time.parse(updated_at) if updated_at.present? && updated_at.is_a?(String)
+    write_attribute(:salesforce_updated_at, updated_at)
+  end
+end

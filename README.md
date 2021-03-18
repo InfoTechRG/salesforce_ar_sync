@@ -171,6 +171,8 @@ The model can have several options set:
 
 [__unscoped_updates__](#unscoped_updates)
 
+[__readonly_fields__](#readonly_fields)
+
 #### <a id="salesforce_sync_enabled"></a>salesforce_sync_enabled
 Model level option to enable disable the sync, defaults to true.
 
@@ -279,6 +281,15 @@ soft deletion strategy that can respect SF undeletion.
 
 ````ruby
 :unscoped_updates => true
+````
+
+#### readonly_fields
+Optionally set fields on the salesforce object that have been defined as Read Only in Salesforce. 
+This helps to ensure that those fields are not synced from the model to salesforce (but still syncable the other way).
+Accepts the salesforce field, not the model's fields.
+
+````ruby
+readonly_fields: %i[NumberOfPosts__c ActiveSeats__c]
 ````
 
 ### Stopping the Sync

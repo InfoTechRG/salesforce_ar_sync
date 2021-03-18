@@ -3,7 +3,7 @@ require 'spec_helper.rb'
 # for testing our environment variables
 SalesforceArSync.config = {}
 SalesforceArSync.config['ORGANIZATION_ID'] = '123456789123456789'
-SalesforceArSync.config['SYNC_ENABLED'] = true
+SalesforceArSync.config['SYNC_ENABLED'] = false
 SalesforceArSync.config['DELETION_MAP'] = { 'Account' => 'Vendor' }
 
 DELETE_HSH = {
@@ -47,7 +47,7 @@ describe SalesforceArSync::SoapHandler::Delete do
       before :each do
         SalesforceArSync.config = {}
         SalesforceArSync.config['ORGANIZATION_ID'] = '123456789123456789'
-        SalesforceArSync.config['SYNC_ENABLED'] = true
+        SalesforceArSync.config['SYNC_ENABLED'] = false
         SalesforceArSync.config['DELETION_MAP'] = { 'Account' => 'Vendor' }
       end
 
@@ -78,7 +78,7 @@ describe SalesforceArSync::SoapHandler::Delete do
       before :each do
         SalesforceArSync.config = {}
         SalesforceArSync.config['ORGANIZATION_ID'] = '123456789123456789'
-        SalesforceArSync.config['SYNC_ENABLED'] = true
+        SalesforceArSync.config['SYNC_ENABLED'] = false
         SalesforceArSync.config['DELETION_MAP'] = {}
       end
 
