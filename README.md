@@ -44,7 +44,7 @@ Before using the salesforce_ar_sync gem you must ensure you have the databasedot
 properly. Make sure each of the models you wish to sync are materialized.
 
 ````ruby
-$sf_client = Databasedotcom::Client.new("config/databasedotcom.yml")
+$sf_client = Restforce::Client.new("config/databasedotcom.yml")
 $sf_client.authenticate :username => <username>, :password => <password>
 
 module SalesforceArSync::SalesforceSync

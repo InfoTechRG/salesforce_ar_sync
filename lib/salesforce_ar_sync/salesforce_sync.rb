@@ -70,6 +70,7 @@ module SalesforceArSync
       # Lastly it will create a new record setting it's salesforce_id
       def salesforce_update(attributes = {})
         raise ArgumentError, "#{salesforce_id_attribute_name} parameter required" if attributes[salesforce_id_attribute_name].blank?
+
         data_source = unscoped_updates ? unscoped : self
         object = data_source.find_by(salesforce_id: attributes[salesforce_id_attribute_name])
         object ||= data_source.find_by(activerecord_web_id_attribute_name => attributes[salesforce_web_id_attribute_name]) if salesforce_sync_web_id? && attributes[salesforce_web_id_attribute_name]
@@ -145,8 +146,8 @@ module SalesforceArSync
 
     # Finds a salesforce record by its Id and returns nil or its SystemModstamp
     def system_mod_stamp
-      hash = JSON.parse(SF_CLIENT.http_get("/services/data/v#{SF_CLIENT.version}/query", q: "SELECT SystemModstamp FROM #{salesforce_object_name} WHERE Id = '#{salesforce_id}'").body)
-      hash['records'].first.try(:[], 'SystemModstamp')
+      sobject = SF_CLIENT.find(salesforce_object_name, salesforce_id)
+      sobject.SystemModstamp
     end
 
     def salesforce_object_exists?
@@ -180,19 +181,22 @@ module SalesforceArSync
 
     def salesforce_create_object(attributes)
       attributes[self.class.salesforce_web_id_attribute_name.to_s] = id if self.class.salesforce_sync_web_id? && !new_record?
-      result = SF_CLIENT.http_post("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}", format_attributes(attributes).to_json)
-      self.salesforce_id = JSON.parse(result.body)['id']
+      byebug
+      # result = SF_CLIENT.http_post("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}", format_attributes(attributes).to_json)
+      salesforce_id = SF_CLIENT.create!(salesforce_object_name, format_attributes(attributes))
+      self.salesforce_id = salesforce_id
       @exists_in_salesforce = true
     end
 
     def salesforce_update_object(attributes)
       attributes[self.class.salesforce_web_id_attribute_name.to_s] = id if self.class.salesforce_sync_web_id? && !new_record?
-      SF_CLIENT.http_patch("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}/#{salesforce_id}", format_attributes(attributes).to_json)
+
+      SF_CLIENT.update!(salesforce_object_name, format_attributes(attributes).merge(Id: salesforce_id))
     end
 
     def salesforce_delete_object
       if ar_sync_outbound_delete?
-        SF_CLIENT.http_delete("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}/#{salesforce_id}")
+        SF_CLIENT.destroy!(salesforce_object_name, salesforce_id)
       end
     end
 
@@ -227,12 +231,13 @@ module SalesforceArSync
       end
     rescue Exception => ex
       errors[:base] << ex.message
-      return false
+      false
     end
 
     def sync_web_id
       return false if !self.class.salesforce_sync_web_id? || SalesforceArSync.config['SYNC_ENABLED'] == false
-      SF_CLIENT.http_patch("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}/#{salesforce_id}", { self.class.salesforce_web_id_attribute_name.to_s => get_activerecord_web_id }.to_json) if salesforce_id
+
+      SF_CLIENT.update!(salesforce_object_name, Id: salesforce_id, self.class.salesforce_web_id_attribute_name.to_s => get_activerecord_web_id) if salesforce_id
     end
 
     def get_activerecord_web_id
@@ -247,6 +252,10 @@ module SalesforceArSync
     def format_attributes(attributes)
       attributes.each do |k, v|
         attributes[k] = v.join(';') if v.is_a?(Array)
+
+        # Databasedotcom apparently did some other stuff to make sure this happened in the background
+        # restforce does not so need to make sure this is called on anything that can call it
+        attributes[k] = v.iso8601 if defined?(v.iso8601)
       end
       attributes
     end
