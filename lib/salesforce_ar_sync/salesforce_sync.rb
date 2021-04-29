@@ -181,8 +181,6 @@ module SalesforceArSync
 
     def salesforce_create_object(attributes)
       attributes[self.class.salesforce_web_id_attribute_name.to_s] = id if self.class.salesforce_sync_web_id? && !new_record?
-      byebug
-      # result = SF_CLIENT.http_post("/services/data/v#{SF_CLIENT.version}/sobjects/#{salesforce_object_name}", format_attributes(attributes).to_json)
       salesforce_id = SF_CLIENT.create!(salesforce_object_name, format_attributes(attributes))
       self.salesforce_id = salesforce_id
       @exists_in_salesforce = true
