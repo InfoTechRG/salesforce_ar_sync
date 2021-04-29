@@ -189,7 +189,7 @@ module SalesforceArSync
     def salesforce_update_object(attributes)
       attributes[self.class.salesforce_web_id_attribute_name.to_s] = id if self.class.salesforce_sync_web_id? && !new_record?
 
-      SF_CLIENT.update!(salesforce_object_name, format_attributes(attributes).merge(Id: salesforce_id))
+      SF_CLIENT.update(salesforce_object_name, format_attributes(attributes).merge(Id: salesforce_id))
     end
 
     def salesforce_delete_object
