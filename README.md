@@ -11,7 +11,6 @@ Outbound Messaging, SOAP and databasedotcom.
 * Salesforce.com instance
 * [Have your 18 character organization id ready](#finding-your-18-character-organization-id)
 * databasedotcom gem >= 1.3 installed and configured [see below](#databasedotcom)
-* delayed_job gem >= 3.0 installed and configured
 
 ### Salesforce Setup
 

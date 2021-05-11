@@ -219,7 +219,7 @@ module SalesforceArSync
     def salesforce_sync
       return if salesforce_skip_sync?
       if salesforce_perform_async_call?
-        Delayed::Job.enqueue(SalesforceArSync::SalesforceObjectSync.new(self.class.salesforce_web_class_name, salesforce_id, salesforce_attributes_to_update), priority: 50)
+        SalesforceArSync::SalesforceObjectSync.set(priority: 50).perform_later(self.class.salesforce_web_class_name, salesforce_id, salesforce_attributes_to_update)
       else
         if salesforce_object_exists?
           salesforce_update_object(salesforce_attributes_to_update) if salesforce_attributes_to_update.present?
