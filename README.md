@@ -11,7 +11,6 @@ Outbound Messaging, SOAP and restforce.
 * Salesforce.com instance
 * [Have your 18 character organization id ready](#finding-your-18-character-organization-id)
 * restforce gem >= 5.0.4 installed and configured [see below](#restforce)
-* delayed_job gem >= 3.0 installed and configured
 
 ### Salesforce Setup
 
