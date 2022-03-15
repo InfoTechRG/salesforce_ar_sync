@@ -1,7 +1,7 @@
 # SalesforceArSync
 
 SalesforceARSync allows you to sync models and fields with Salesforce through a combination of
-Outbound Messaging, SOAP and databasedotcom.
+Outbound Messaging, SOAP and restforce.
 
 ## Installation
 
@@ -10,8 +10,7 @@ Outbound Messaging, SOAP and databasedotcom.
 * Rails ~> 4.0
 * Salesforce.com instance
 * [Have your 18 character organization id ready](#finding-your-18-character-organization-id)
-* databasedotcom gem >= 1.3 installed and configured [see below](#databasedotcom)
-* delayed_job gem >= 3.0 installed and configured
+* restforce gem >= 5.0.4 installed and configured [see below](#restforce)
 
 ### Salesforce Setup
 
@@ -38,14 +37,15 @@ Select the fields you wish to sync (Id and SystemModstamp are required).
 
 *You need to do this for each object/model you want to sync.
 
-### databasedotcom
+### restforce
 
-Before using the salesforce_ar_sync gem you must ensure you have the databasedotcom gem installed and configured
+Before using the salesforce_ar_sync gem you must ensure you have the restforce gem installed and configured
 properly. Make sure each of the models you wish to sync are materialized.
 
 ````ruby
-$sf_client = Databasedotcom::Client.new("config/databasedotcom.yml")
-$sf_client.authenticate :username => <username>, :password => <password>
+# Note: You can name the config to anything you want
+$sf_client = Restforce::Client.new("config/salesforce.yml")
+$sf_client.authenticate username: <username>, password: <password>
 
 module SalesforceArSync::SalesforceSync
   SF_CLIENT = $sf_client
@@ -94,7 +94,7 @@ Next you will need to tell the gem which models are syncable by adding _salesfor
 and specifying which attributes you would like to sync.
 
 ````ruby
-salesforce_syncable :sync_attributes => {:FirstName => :first_name, :LastName => :last_name}
+salesforce_syncable :sync_attributes => {FirstName: :first_name, LastName: :last_name}
 ````
 
 The first parameter in the _:sync_attributes_ hash is the Salesforce field name and the second is the model attribute
@@ -177,7 +177,7 @@ The model can have several options set:
 Model level option to enable disable the sync, defaults to true.
 
 ````ruby
-:salesforce_sync_enabled => false
+salesforce_sync_enabled: false
 ````
 
 #### sync_attributes
@@ -187,7 +187,7 @@ value, you should also implement a corresponding my_method_changed? to return if
 it will always be synced.
 
 ````ruby
-:sync_attributes => { :Email => :login, :FirstName => :first_name, :LastName => :last_name }
+sync_attributes: { Email: :login, FirstName: :first_name, LastName: :last_name }
 ````
 
 #### async_attributes
@@ -195,7 +195,7 @@ An array of Salesforce attributes which should be synced asynchronously, default
 Use this carefully, nothing is done to ensure data integrity, if multiple jobs are queued for a single object there is no way to guarentee that they are processed in order, or that the save to Salesforce will succeed.
 
 ````ruby
-:async_attributes => ["Last_Login__c", "Login_Count__c"]
+async_attributes: ['Last_Login__c', 'Login_Count__c']
 ````
 
 Note:  The model will fall back to synchronous sync if non-synchronous attributes are changed along with async
@@ -205,35 +205,35 @@ attributes
 A hash of default attributes that should be used when we are creating a new record, defaults to empty hash.
 
 ````ruby
-:default_attributes_for_create => {:password_change_required => true}
+default_attributes_for_create: { password_change_required: true }
 ````
 
 #### salesforce_id_attribute_name
 The "Id" attribute of the corresponding Salesforce object, defaults to _Id_.
 
 ````ruby
-:salesforce_id_attribute_name => :Id
+salesforce_id_attribute_name: :Id
 ````
 
 #### web_id_attribute_name
 The field name of the web id attribute in the Salesforce Object, defaults to _WebId__c_
 
 ````ruby
-:web_id_attribute_name  => :WebId__c
+web_id_attribute_name: :WebId__c
 ````
 
 #### activerecord_web_id_attribute_name
 The field name of the web id attribute in the Active Record Object, defaults to id
 
 ````ruby
-:activerecord_web_id_attribute_name  => :id
+activerecord_web_id_attribute_name: :id
 ````
 
 #### salesforce_sync_web_id
 Enable or disable sync of the web id, defaults to false. Use this if you have a need for the id field of the ActiveRecord model to by synced to Salesforce.
 
 ````ruby
-:salesforce_sync_web_id => false
+salesforce_sync_web_id: false
 ````
 
 #### additional_lookup_fields
@@ -250,14 +250,14 @@ different web object. Defaults to the model name. This would generally be used i
 into a larger SF object like Contact.
 
 ````ruby
-:web_class_name => 'Contact',
+web_class_name: 'Contact',
 ````
 
 #### salesforce_object_name
 Optionally holds the name of a method which will return the name of the Salesforce object to sync to, defaults to nil.
 
 ````ruby
-:salesforce_object_name => :salesforce_object_name_method_name
+salesforce_object_name: :salesforce_object_name_method_name
 ````
 
 #### except
@@ -265,14 +265,14 @@ Optionally holds the name of a method which can contain logic to determine if a 
 method is given then only the salesforce_skip_sync attribute is used. Defaults to nil.
 
 ````ruby
-:except => :except_method_name
+except: :except_method_name
 ````
 
 #### save_method
 Optionally holds the name of a method which contains custom logic for saving on sync. Defaults to `ActiveRecord::Base#save!`
 
 ````ruby
-:save_method => :save_method_name
+save_method: :save_method_name
 ````
 
 #### unscoped_updates
@@ -280,7 +280,7 @@ Enable bypassing the default scope when searching for records to update.  This i
 soft deletion strategy that can respect SF undeletion.
 
 ````ruby
-:unscoped_updates => true
+unscoped_updates: true
 ````
 
 #### readonly_fields
@@ -319,7 +319,7 @@ class Contact < ActiveRecord::Base
   attributes :first_name, :last_name, :phone, :email, :last_login_time, :salesforce_id, :salesforce_updated_at
   attr_accessor :first_name, :last_name, :phone, :email
 
-  salesforce_syncable :sync_attributes => {:FirstName => :first_name, :LastName => :last_name, :Phone => :phone, :Email => :email}
+  salesforce_syncable sync_attributes: { FirstName: :first_name, LastName: :last_name, Phone: :phone, Email: :email }
 end
 ```
 
@@ -330,8 +330,8 @@ class Contact < ActiveRecord::Base
   attributes :first_name, :last_name, :phone, :email, :last_login_time, :salesforce_id, :salesforce_updated_at
   attr_accessor :first_name, :last_name, :phone, :email
 
-  salesforce_syncable :sync_attributes => {:FirstName => :first_name, :LastName => :last_name, :Phone => :phone, :Email => :email},
-                      :salesforce_sync_enabled => false
+  salesforce_syncable sync_attributes: {FirstName: :first_name, LastName: :last_name, Phone: :phone, Email: :email},
+                      salesforce_sync_enabled: false
 end
 ```
 
@@ -342,8 +342,8 @@ class Contact < ActiveRecord::Base
   attributes :first_name, :last_name, :phone, :email, :last_login_time, :salesforce_id, :salesforce_updated_at
   attr_accessor :first_name, :last_name, :phone, :email
 
-  salesforce_syncable :sync_attributes => {:FirstName => :first_name, :LastName => :last_name, :Phone => :phone, :Email => :email},
-                      :except => :skip_sync?
+  salesforce_syncable sync_attributes: {FirstName: :first_name, LastName: :last_name, Phone: :phone, Email: :email},
+                      except: :skip_sync?
 
   def skip_sync?
     if first_name.blank?
@@ -367,8 +367,8 @@ class Contact < ActiveRecord::Base
   attributes :first_name, :last_name, :phone, :email, :last_login_time, :salesforce_id, :salesforce_updated_at
   attr_accessor :first_name, :last_name, :phone, :email, :last_login_time
 
-  salesforce_syncable :sync_attributes => {:FirstName => :first_name, :LastName => :last_name, :Phone => :phone, :Email => :email, :Last_Login_Time__c => :last_login_time},
-                      :async_attributes => ["Last_Login_Time__c"]
+  salesforce_syncable sync_attributes: { FirstName: :first_name, LastName: :last_name, Phone: :phone, Email: :email, Last_Login_Time__c: :last_login_time },
+                      async_attributes: ['Last_Login_Time__c']
 end
 ```
 
@@ -379,8 +379,8 @@ class Contact < ActiveRecord::Base
   attributes :first_name, :last_name, :phone, :email, :last_login_time, :salesforce_id, :salesforce_updated_at
   attr_accessor :first_name, :last_name, :phone, :email, :last_login_time
 
-  salesforce_syncable :sync_attributes => {:FirstName => :first_name, :LastName => :last_name, :Phone => :phone, :Email => :email},
-                      :default_attributes_for_create => {:password_change_required => true}
+  salesforce_syncable sync_attributes: { FirstName: :first_name, LastName: :last_name, Phone: :phone, Email: :email },
+                      default_attributes_for_create: { password_change_required: true }
 end
 ```
 
@@ -398,9 +398,9 @@ using the 18 digit Salesforce id, but maintain our ActiveRecord relationships.
 		attributes :first_name, :last_name, :account_id
 		attr_accessor :first_name, :last_name, :account_id
 
-		salesforce_syncable :sync_attributes => { :FirstName => :first_name,
-																							:LastName => :last_name,
-																							:AccountId => :salesforce_account_id }
+		salesforce_syncable sync_attributes: { FirstName: :first_name,
+																							LastName: :last_name,
+																							AccountId: :salesforce_account_id }
 
 		def salesforce_account_id_changed?
 		  account_id_changed?
@@ -426,8 +426,8 @@ class Contact < ActiveRecord::Base
   attributes :first_name, :last_name, :phone, :email, :last_login_time, :salesforce_id, :salesforce_updated_at
   attr_accessor :first_name, :last_name, :phone, :email, :last_login_time
 
-  salesforce_syncable :sync_attributes => {:FirstName => :first_name, :LastName => :last_name, :Phone => :phone, :Email => :email},
-                      :salesforce_object_name => :custom_salesforce_object_name
+  salesforce_syncable sync_attributes: { FirstName: :first_name, LastName: :last_name, Phone: :phone, Email: :email },
+                      salesforce_object_name: :custom_salesforce_object_name
 
   def custom_salesforce_object_name
     "CustomContact__c"
@@ -456,8 +456,8 @@ Syncing inbound deletes is enabled by default, but can be configured in the Rail
 This is done using the :sync_inbound_delete option, which can take either a boolean value, or the name of a method that returns a boolean value.
 
 ```ruby
-  salesforce_syncable :sync_inbound_delete => :inbound_delete
-                     #:sync_inbound_delete => true
+  salesforce_syncable sync_inbound_delete: :inbound_delete
+                     #sync_inbound_delete: true
   def inbound_delete
     return self.comments.count == 0
   end
@@ -468,8 +468,8 @@ Syncing outbound deletes to Salesforce is disabled by default, but can be config
 This is done using the :sync_outbound_delete option, which can take either a boolean value, or the name of a method that returns a boolean value.
 
 ```ruby
-  salesforce_syncable :sync_outbound_delete => :outbound_delete
-                     #:sync_outbound_delete => false
+  salesforce_syncable sync_outbound_delete: :outbound_delete
+                     #sync_outbound_delete: false
 
   def outbound_delete
     return self.is_trial_user?

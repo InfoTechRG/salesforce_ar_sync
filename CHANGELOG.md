@@ -21,3 +21,5 @@
 * Adds support for Rails 5
 * Added ability to specify readonly fields for salesforce syncable models so those fields don't try to sync back to Salesforce
 * WebID syncing fixed
+# Version 4.0.0
+* Changed Databasedotcom over to Restforce
