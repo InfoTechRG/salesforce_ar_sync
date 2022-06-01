@@ -18,6 +18,7 @@ module SalesforceArSync
       soap_handler.process_notifications(priority) if soap_handler.sobjects
       render xml: soap_handler.generate_response, status: :created
     rescue Exception => ex
+      Rollbar.error(ex,  "Contact Sync  Failed: #{ex.message}")
       render xml: soap_handler.generate_response(ex), status: :created
     end
 
