@@ -229,6 +229,7 @@ module SalesforceArSync
       end
     rescue Exception => ex
       errors[:base] << ex.message
+      Rollbar.error(exception, message)
       false
     end
 
