@@ -218,6 +218,8 @@ module SalesforceArSync
     # sync model data to Salesforce, adding any Salesforce validation errors to the models errors
     def salesforce_sync
       return if salesforce_skip_sync?
+
+      byebug
       if salesforce_perform_async_call?
         SalesforceArSync::SalesforceObjectSync.set(priority: 50).perform_later(self.class.salesforce_web_class_name, salesforce_id, salesforce_attributes_to_update.to_json)
       else
