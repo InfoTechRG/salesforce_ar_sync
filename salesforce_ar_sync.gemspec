@@ -16,6 +16,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'actionpack-xml_parser'
   gem.add_dependency 'rails', '>= 5'
+  gem.add_dependency 'rexml', '~> 3.2'
 
   gem.add_development_dependency 'ammeter', '~> 1.1.2'
   gem.add_development_dependency 'rake'
