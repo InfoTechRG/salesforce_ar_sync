@@ -23,3 +23,5 @@
 * WebID syncing fixed
 # Version 4.0.0
 * Changed Databasedotcom over to Restforce
+# Version 4.1.0
+* Add rexml dependency to support Ruby 3.0
