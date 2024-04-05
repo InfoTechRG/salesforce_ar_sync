@@ -25,3 +25,5 @@
 * Changed Databasedotcom over to Restforce
 # Version 4.1.0
 * Add rexml dependency to support Ruby 3.0
+# Version 4.2.0
+* Remove .delay calls for Sidekiq 7 compatibility
