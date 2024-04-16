@@ -228,7 +228,7 @@ module SalesforceArSync
         end
       end
     rescue Exception => ex
-      errors[:base] << ex.message
+      errors.add(:base, ex.message)
       false
     end
 
