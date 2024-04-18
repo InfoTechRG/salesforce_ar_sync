@@ -219,7 +219,7 @@ module SalesforceArSync
     def salesforce_sync
       return if salesforce_skip_sync?
       if salesforce_perform_async_call?
-        SalesforceArSync::SalesforceObjectSync.set(priority: 50).perform_later(self.class.salesforce_web_class_name, salesforce_id, salesforce_attributes_to_update.to_json)
+        SalesforceArSync::SalesforceObjectSyncJob.set(priority: 50).perform_later(self.class.salesforce_web_class_name, salesforce_id, salesforce_attributes_to_update.to_json)
       else
         if salesforce_object_exists?
           salesforce_update_object(salesforce_attributes_to_update) if salesforce_attributes_to_update.present?
