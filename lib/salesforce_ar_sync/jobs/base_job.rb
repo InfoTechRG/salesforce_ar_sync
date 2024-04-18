@@ -10,6 +10,7 @@ module SalesforceArSync
 
     def prepare_class(klass)
       klass = klass.camelize.constantize if klass.is_a?(String)
+      klass
     end
   end
 end
