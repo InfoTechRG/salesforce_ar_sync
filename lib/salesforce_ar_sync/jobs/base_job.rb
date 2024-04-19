@@ -9,8 +9,7 @@ module SalesforceArSync
     protected
 
     def prepare_class(klass)
-      klass = klass.camelize.constantize if klass.is_a?(String)
-      klass
+      klass.is_a?(String) ? klass.camelize.constantize : klass
     end
   end
 end

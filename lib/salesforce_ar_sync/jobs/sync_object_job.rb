@@ -3,8 +3,7 @@
 module SalesforceArSync
   class SyncObjectJob < BaseJob
     def perform(klass, sobject)
-      klass = prepare_class(klass)
-      klass.salesforce_update(sobject)
+      prepare_class(klass).salesforce_update(sobject)
     end
   end
 end
