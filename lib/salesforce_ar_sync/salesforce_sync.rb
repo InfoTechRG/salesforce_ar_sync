@@ -164,13 +164,15 @@ module SalesforceArSync
     def salesforce_attributes_to_update(include_all = false)
       {}.tap do |hash|
         self.class.salesforce_sync_attribute_mapping.each do |key, value|
-          next unless respond_to?(value)
+          next if !respond_to?(value) ||
+                  self.class.readonly_fields&.include?(key.to_sym) ||
+                  (!include_all && !salesforce_should_update_attribute?(value))
 
           # Checkboxes in SFDC Cannot be nil.  Here we check for boolean field type and set nil values to be false
           attribute_value = send(value)
           attribute_value = false if is_boolean?(value) && attribute_value.nil?
 
-          hash[key] = attribute_value if !self.class.readonly_fields&.include?(key.to_sym) && (include_all || salesforce_should_update_attribute?(value))
+          hash[key] = attribute_value
         end
       end
     end
