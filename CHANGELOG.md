@@ -25,3 +25,6 @@
 * Changed Databasedotcom over to Restforce
 # Version 4.1.0
 * Add rexml dependency to support Ruby 3.0
+# Version 5.0.0
+* Replace .delay calls with ActiveJobs
+* Add job_queue config

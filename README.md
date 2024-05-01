@@ -112,6 +112,7 @@ The options available to configure are
 * __sync_enabled__: a global sync enabled flag which is a boolean true/false
 * __namespace_prefix__: Namespace prefix of your Salesforce app in case you specified one
 * __deletion_map__: Salesforce object names mapped to internal app name.
+* __job_queue__: A symbol naming the ActiveJob queue you wish sync and delete jobs to use. (default is :default)
 
 To generate a YAML file
 
@@ -129,7 +130,7 @@ which will create a template salesforce_ar_sync.yml in /config that looks like t
     deletion_map:
 
 
-To use the ENV variable you must pass environemnt variables to rails via the _export_ command in bash or before the
+To use the ENV variable you must pass environment variables to rails via the _export_ command in bash or before the
 initializer loads the ENV settings.
 
     $ export SALESFORCE_AR_SYNC_ORGANIZATION_ID=123456789123456789

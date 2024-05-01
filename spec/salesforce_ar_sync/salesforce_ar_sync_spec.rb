@@ -496,6 +496,44 @@ describe SalesforceArSync, :vcr do
     end
   end
 
+  describe '#salesforce_update_object' do
+    let(:contact) do
+      Contact.new(
+        first_name: 'Fred',
+        last_name: 'Flintstone',
+        salesforce_id: '001xx000003DGg3AAG'
+      )
+    end
+    let(:restforce_client_stub) { OpenStruct.new }
+
+    before do
+      stub_const('SF_CLIENT', restforce_client_stub)
+    end
+
+    context 'when the class should sync web id' do
+      it 'calls SF_CLIENT.update with the correct parameters' do
+        allow(Contact).to receive(:salesforce_sync_web_id?).and_return(true)
+        allow(contact).to receive(:new_record?).and_return(false)
+        expected_attributes = contact.attributes.merge(
+          {
+            Id: contact.salesforce_id,
+            Contact.salesforce_web_id_attribute_name.to_s => contact.id
+          }
+        )
+
+        expect(SF_CLIENT).to receive(:update).with('Contact', expected_attributes)
+        contact.salesforce_update_object(contact.attributes)
+      end
+    end
+
+    context 'when the class should not sync web id' do
+      it 'calls SF_CLIENT.update with the correct parameters' do
+        expect(SF_CLIENT).to receive(:update).with('Contact', contact.attributes.merge(Id: contact.salesforce_id))
+        contact.salesforce_update_object(contact.attributes)
+      end
+    end
+  end
+
   describe '#get_activerecord_web_id' do
     context 'no custom web id' do
       it 'returns the id' do

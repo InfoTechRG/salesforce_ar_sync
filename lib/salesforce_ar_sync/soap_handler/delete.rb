@@ -3,7 +3,10 @@ module SalesforceArSync
     class Delete < SalesforceArSync::SoapHandler::Base
       def process_notifications(priority = 90)
         batch_process do |sobject|
-          SalesforceArSync::SoapHandler::Delete.delay(priority: priority, run_at: 5.seconds.from_now).delete_object(sobject)
+          SalesforceArSync::DeleteObjectJob.set(
+            priority: priority,
+            wait_until: 5.seconds.from_now
+          ).perform_later(SalesforceArSync::SoapHandler::Delete, sobject)
         end
       end
 
