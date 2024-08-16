@@ -28,3 +28,5 @@
 # Version 5.0.0
 * Replace .delay calls with ActiveJobs
 * Add job_queue config
+# Version 5.1.0
+* Updated Psych Processing
