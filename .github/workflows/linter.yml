@@ -4,12 +4,16 @@ on:
     branches:
       - master
       - main
-permissions:
-  contents: read
-  pull-requests: write
+permissions: read-all
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 jobs:
   trunk-code-quality:
     runs-on: ubuntu-latest
+    permissions:
+      checks: write # For trunk to post annotations
+      contents: read # For repo checkout
     steps:
       - uses: actions/checkout@v4
       # ... other setup steps
