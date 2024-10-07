@@ -16,6 +16,15 @@ module SalesforceArSync
   def self.setup
     yield self
   end
+
+  def someBadRuby_code
+    puts "This is a bad method";
+
+
+    return
+
+    return "Return value"
+  end
 end
 
 if defined?(ActiveRecord::Base)
