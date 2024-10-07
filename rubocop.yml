@@ -29,7 +29,7 @@ Metrics/ClassLength:
     Look for ways to decrease class size by pulling logic into services, concerns, etc.
 
 Metrics/MethodLength:
-  CountAsOne: ['array', 'hash', 'heredoc', 'method_call']
+  CountAsOne: ["array", "hash", "heredoc", "method_call"]
 
 Metrics/CyclomaticComplexity:
   Severity: warning
@@ -64,11 +64,11 @@ Style/NumericLiterals:
 
 RSpec/DescribeClass:
   Exclude:
-    - '**/spec/features/**/*'
-    - '**/spec/requests/**/*'
-    - '**/spec/routing/**/*'
-    - '**/spec/system/**/*'
-    - '**/spec/views/**/*'
+    - "**/spec/features/**/*"
+    - "**/spec/requests/**/*"
+    - "**/spec/routing/**/*"
+    - "**/spec/system/**/*"
+    - "**/spec/views/**/*"
   IgnoredMetadata:
     type:
       - request

@@ -2,7 +2,8 @@ require File.expand_path('lib/salesforce_ar_sync/version', __dir__)
 
 Gem::Specification.new do |gem|
   gem.authors       = ['Michael Halliday', 'Nick Neufeld', 'Andrew Coates', 'Devon Noonan', 'Liam Nediger']
-  gem.email         = ['mhalliday@infotech.com', 'nneufeld@infotech.com', 'acoates@infotech.com', 'dnoonan@infotech.com', 'lnediger@infotech.com']
+  gem.email         = ['mhalliday@infotech.com', 'nneufeld@infotech.com', 'acoates@infotech.com',
+                       'dnoonan@infotech.com', 'lnediger@infotech.com']
   gem.description   = 'ActiveRecord extension & rails engine for syncing data with Salesforce.com'
   gem.summary       = 'ActiveRecord extension & rails engine for syncing data with Salesforce.com'
   gem.homepage      = 'http://github.com/InfoTech/'
