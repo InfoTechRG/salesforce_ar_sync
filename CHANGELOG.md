@@ -43,5 +43,5 @@
 # Version 5.1.0
 * Updated Psych Processing
 
-# Version 5.1.0
+# Version 5.2.0
 * Added the ability to manually trigger syncing of specific model attributes.
