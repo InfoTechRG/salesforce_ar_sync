@@ -214,7 +214,7 @@ module SalesforceArSync
     def salesforce_sync(*attrs)
       return if salesforce_skip_sync?
 
-      attributes_to_update = salesforce_attributes_to_update(false, attrs)
+      attributes_to_update = salesforce_attributes_to_update(attrs.any?, attrs)
 
       if salesforce_perform_async_call?
         SalesforceArSync::SalesforceObjectSyncJob.set(priority: 50).perform_later(

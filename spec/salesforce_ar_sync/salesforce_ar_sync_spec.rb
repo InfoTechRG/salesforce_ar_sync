@@ -535,8 +535,8 @@ describe SalesforceArSync, :vcr do
   end
 
   describe '#salesforce_sync' do
-    let(:contact) do
-      Contact.new(
+    let!(:contact) do
+      Contact.create(
         first_name: 'Jane',
         last_name: 'Doe',
         email: 'jdoe@example.com',
