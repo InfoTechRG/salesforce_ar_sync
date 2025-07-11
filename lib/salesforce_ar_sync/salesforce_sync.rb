@@ -205,9 +205,9 @@ module SalesforceArSync
 
     # if attributes specified in the async_attributes array are the only attributes being modified, then sync the data
     # via delayed_job
-    def salesforce_perform_async_call?
-      return false if salesforce_attributes_to_update.empty? || self.class.salesforce_async_attributes.empty?
-      salesforce_attributes_to_update.keys.all? { |key| self.class.salesforce_async_attributes.include?(key) } && salesforce_id.present?
+    def salesforce_perform_async_call?(attributes_to_update)
+      return false if attributes_to_update.empty? || self.class.salesforce_async_attributes.empty?
+      attributes_to_update.keys.all? { |key| self.class.salesforce_async_attributes.include?(key) } && salesforce_id.present?
     end
 
     # sync model data to Salesforce, adding any Salesforce validation errors to the models errors
@@ -216,7 +216,7 @@ module SalesforceArSync
 
       attributes_to_update = salesforce_attributes_to_update(attrs.any?, attrs)
 
-      if salesforce_perform_async_call?
+      if salesforce_perform_async_call?(attributes_to_update)
         SalesforceArSync::SalesforceObjectSyncJob.set(priority: 50).perform_later(
           self.class.salesforce_web_class_name, salesforce_id,
           attributes_to_update.to_json
