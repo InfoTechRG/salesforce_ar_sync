@@ -3,6 +3,56 @@
 SalesforceARSync allows you to sync models and fields with Salesforce through a combination of
 Outbound Messaging, SOAP and restforce.
 
+### Contents
+
+- [Installation](#installation)
+  - [Requirements](#requirements)
+  - [Salesforce Setup](#salesforce-setup)
+    - [1. Setup Remote Access](#1-setup-remote-access)
+    - [2. Setup Outbound Messaging](#2-setup-outbound-messaging)
+  - [restforce](#restforce)
+  - [Gem Installation](#gem-installation)
+  - [Application Setup](#application-setup)
+- [Usage](#usage)
+  - [Configuration Options](#configuration-options)
+  - [Model Options](#model-options)
+    - [salesforce\_sync\_enabled](#salesforce_sync_enabled)
+    - [sync\_attributes](#sync_attributes)
+    - [async\_attributes](#async_attributes)
+    - [default\_attributes\_for\_create](#default_attributes_for_create)
+    - [salesforce\_id\_attribute\_name](#salesforce_id_attribute_name)
+    - [web\_id\_attribute\_name](#web_id_attribute_name)
+    - [activerecord\_web\_id\_attribute\_name](#activerecord_web_id_attribute_name)
+    - [salesforce\_sync\_web\_id](#salesforce_sync_web_id)
+    - [additional\_lookup\_fields](#additional_lookup_fields)
+    - [web\_class\_name](#web_class_name)
+    - [salesforce\_object\_name](#salesforce_object_name)
+    - [except](#except)
+    - [save\_method](#save_method)
+    - [unscoped\_updates](#unscoped_updates)
+    - [readonly\_fields](#readonly_fields)
+  - [Stopping the Sync](#stopping-the-sync)
+  - [Manual Sync](#manual-sync)
+- [Examples](#examples)
+  - [Our Basic Example Model](#our-basic-example-model)
+  - [Making the Model Syncable](#making-the-model-syncable)
+  - [Stopping the Model from Syncing with a Flag](#stopping-the-model-from-syncing-with-a-flag)
+  - [Stopping the Model from Syncing with a Method](#stopping-the-model-from-syncing-with-a-method)
+  - [Stopping a Record from Syncing](#stopping-a-record-from-syncing)
+  - [Specify Async Attributes](#specify-async-attributes)
+  - [Specify Default Attributes when an Object is Created](#specify-default-attributes-when-an-object-is-created)
+  - [Relationships](#relationships)
+  - [Defining a Custom Salesforce Object](#defining-a-custom-salesforce-object)
+- [Deletes](#deletes)
+  - [Inbound Deletes](#inbound-deletes)
+  - [Outbound Deletes](#outbound-deletes)
+  - [Soft Deletes](#soft-deletes)
+- [Errors](#errors)
+  - [Outbound Message Errors](#outbound-message-errors)
+- [Finding your 18 Character Organization ID](#finding-your-18-character-organization-id)
+- [Testing](#testing)
+- [Contributing](#contributing)
+
 ## Installation
 
 ### Requirements
@@ -144,35 +194,6 @@ An example of adding an aliased object to the deletion map should look like the 
       Account: 'YourModelName'
 
 ### Model Options
-The model can have several options set:
-
-[__salesforce_sync_enabled__](#salesforce_sync_enabled)
-
-[__sync_attributes__](#sync_attributes)
-
-[__async_attributes__](#async_attributes)
-
-[__default_attributes_for_create__](#default_attributes_for_create)
-
-[__salesforce_id_attribute_name__](#salesforce_id_attribute_name)
-
-[__web_id_attribute_name__](#web_id_attribute_name)
-
-[__activerecord_web_id_attribute_name__](#activerecord_web_id_attribute_name)
-
-[__salesforce_sync_web_id__](#salesforce_sync_web_id)
-
-[__web_class_name__](#web_class_name)
-
-[__salesforce_object_name__](#salesforce_object_name)
-
-[__except__](#except)
-
-[__save_method__](#save_method)
-
-[__unscoped_updates__](#unscoped_updates)
-
-[__readonly_fields__](#readonly_fields)
 
 #### <a id="salesforce_sync_enabled"></a>salesforce_sync_enabled
 Model level option to enable disable the sync, defaults to true.
@@ -285,7 +306,7 @@ unscoped_updates: true
 ````
 
 #### readonly_fields
-Optionally set fields on the salesforce object that have been defined as Read Only in Salesforce. 
+Optionally set fields on the salesforce object that have been defined as Read Only in Salesforce.
 This helps to ensure that those fields are not synced from the model to salesforce (but still syncable the other way).
 Accepts the salesforce field, not the model's fields.
 
@@ -301,6 +322,16 @@ Stopping the gem from syncing can be done on three levels.
 configuration variable _SALESFORCE_AR_SYNC_CONFIG["SYNC_ENABLED"]_
 * The model level by setting the _:salesforce_sync_enabled => false_ or _:except => :method_name_
 * The instance level by setting _:salesforce_skip_sync => true_ in the instance
+
+### Manual Sync
+
+You can trigger a manual sync of any configured attributes. All checks to skip syncing or to sync asynchronously will still be executed.
+
+```ruby
+my_user_record.salesforce_sync(:email)
+
+my_user_record.salesforce_sync(:email, :phone)
+```
 
 ## Examples
 
@@ -499,6 +530,11 @@ If the SOAP handler encounters an error it will be recorded in the log of the ou
  Your 15 character organization id can be found in _Setup -> Company Profile -> Company Information_. You must convert
  it to an 18 character id by running it through the tool located here:
  http://cloudjedi.wordpress.com/no-fuss-salesforce-id-converter/ or by installing the Force.com Utility Belt for Chrome.
+
+## Testing
+This gem uses [Appraisal](https://github.com/thoughtbot/appraisal) to test against many versions of Rails.
+
+Run the test script to automatically set up and run the test suite: `./test`
 
 ## Contributing
 

@@ -534,6 +534,45 @@ describe SalesforceArSync, :vcr do
     end
   end
 
+  describe '#salesforce_sync' do
+    let!(:contact) do
+      Contact.create(
+        first_name: 'Jane',
+        last_name: 'Doe',
+        email: 'jdoe@example.com',
+        salesforce_id: '001xx000003DGg3AAG'
+      )
+    end
+    let(:restforce_client_stub) { OpenStruct.new }
+
+    before do
+      SalesforceArSync.config['SYNC_ENABLED'] = true
+      stub_const('SF_CLIENT', restforce_client_stub)
+
+      allow(SF_CLIENT).to receive(:update)
+      allow(contact).to receive(:salesforce_object_exists?).and_return(true)
+    end
+
+    context 'when supplied with which attributes to sync' do
+      it 'calls SF_CLIENT.update with the correct parameters' do
+        contact.salesforce_sync(:first_name, :email_address)
+        expect(SF_CLIENT).to have_received(:update).with(
+          'Contact',
+          Id: contact.salesforce_id,
+          Contact.salesforce_sync_attribute_mapping.invert[:first_name] => contact.first_name,
+          Contact.salesforce_sync_attribute_mapping.invert[:email_address] => contact.email_address
+        )
+      end
+    end
+
+    context 'when supplied with invalid attributes to sync' do
+      it 'calls SF_CLIENT.update with the correct parameters' do
+        contact.salesforce_sync(:bad_attribute)
+        expect(SF_CLIENT).not_to have_received(:update)
+      end
+    end
+  end
+
   describe '#get_activerecord_web_id' do
     context 'no custom web id' do
       it 'returns the id' do

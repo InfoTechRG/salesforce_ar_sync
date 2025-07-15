@@ -139,11 +139,6 @@ module SalesforceArSync
       self.send(self.class.salesforce_save_method)
     end
 
-    #    def salesforce_object_exists?
-    #      return salesforce_object_exists_method if respond_to? salesforce_exists_method
-    #      return salesforce_object_exists_default
-    #    end
-
     # Finds a salesforce record by its Id and returns nil or its SystemModstamp
     def system_mod_stamp
       sobject = SF_CLIENT.find(salesforce_object_name, salesforce_id)
@@ -161,10 +156,10 @@ module SalesforceArSync
     end
 
     # create a hash of updates to send to salesforce
-    def salesforce_attributes_to_update(include_all = false)
+    def salesforce_attributes_to_update(include_all = false, attrs = [])
       {}.tap do |hash|
         self.class.salesforce_sync_attribute_mapping.each do |key, value|
-          next unless respond_to?(value)
+          next if (attrs.any? && attrs.exclude?(value.to_sym)) || !respond_to?(value)
 
           # Checkboxes in SFDC Cannot be nil.  Here we check for boolean field type and set nil values to be false
           attribute_value = send(value)
@@ -210,21 +205,27 @@ module SalesforceArSync
 
     # if attributes specified in the async_attributes array are the only attributes being modified, then sync the data
     # via delayed_job
-    def salesforce_perform_async_call?
-      return false if salesforce_attributes_to_update.empty? || self.class.salesforce_async_attributes.empty?
-      salesforce_attributes_to_update.keys.all? { |key| self.class.salesforce_async_attributes.include?(key) } && salesforce_id.present?
+    def salesforce_perform_async_call?(attributes_to_update)
+      return false if attributes_to_update.empty? || self.class.salesforce_async_attributes.empty?
+      attributes_to_update.keys.all? { |key| self.class.salesforce_async_attributes.include?(key) } && salesforce_id.present?
     end
 
     # sync model data to Salesforce, adding any Salesforce validation errors to the models errors
-    def salesforce_sync
+    def salesforce_sync(*attrs)
       return if salesforce_skip_sync?
-      if salesforce_perform_async_call?
-        SalesforceArSync::SalesforceObjectSyncJob.set(priority: 50).perform_later(self.class.salesforce_web_class_name, salesforce_id, salesforce_attributes_to_update.to_json)
+
+      attributes_to_update = salesforce_attributes_to_update(attrs.any?, attrs)
+
+      if salesforce_perform_async_call?(attributes_to_update)
+        SalesforceArSync::SalesforceObjectSyncJob.set(priority: 50).perform_later(
+          self.class.salesforce_web_class_name, salesforce_id,
+          attributes_to_update.to_json
+        )
       else
         if salesforce_object_exists?
-          salesforce_update_object(salesforce_attributes_to_update) if salesforce_attributes_to_update.present?
+          salesforce_update_object(attributes_to_update) if attributes_to_update.present?
         else
-          salesforce_create_object(salesforce_attributes_to_update(!new_record?)) if salesforce_id.nil?
+          salesforce_create_object(attributes_to_update(!new_record?)) if salesforce_id.nil?
         end
       end
     rescue Exception => ex

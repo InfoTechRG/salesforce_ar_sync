@@ -3,6 +3,7 @@
 source "https://rubygems.org"
 
 gem "appraisal"
-gem "rails", "4.0.4"
+gem "debug"
+gem "rails", "~> 7.1.0"
 
-gemspec :path => "../"
+gemspec path: "../"
