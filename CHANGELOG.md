@@ -45,3 +45,6 @@
 
 # Version 5.2.0
 * Added the ability to manually trigger syncing of specific model attributes.
+
+# Version 5.2.1
+* Reverted accidental change to object creation during sync.
