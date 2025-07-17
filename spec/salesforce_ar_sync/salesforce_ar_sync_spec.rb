@@ -1,4 +1,4 @@
-require 'spec_helper.rb'
+require 'spec_helper'
 
 # for testing our environment variables
 SalesforceArSync.config = {}

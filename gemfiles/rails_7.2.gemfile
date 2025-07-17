@@ -4,6 +4,7 @@ source "https://rubygems.org"
 
 gem "appraisal"
 gem "debug"
+gem "ostruct"
 gem "rails", "~> 7.2.0"
 
 gemspec path: "../"
