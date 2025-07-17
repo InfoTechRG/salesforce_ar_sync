@@ -4,3 +4,4 @@ gemspec
 
 gem 'appraisal'
 gem 'debug'
+gem 'ostruct'

@@ -1,0 +1,32 @@
+# Only test Ruby maintenance branches.
+# https://www.ruby-lang.org/en/downloads/branches
+name: Gem Tests
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  tests_matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    strategy:
+      matrix:
+        ruby:
+          - "3.2"
+          - "3.3"
+          - "3.4"
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+    - name: Run Test Suite
+      run: ./test

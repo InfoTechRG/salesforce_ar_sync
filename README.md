@@ -327,6 +327,8 @@ configuration variable _SALESFORCE_AR_SYNC_CONFIG["SYNC_ENABLED"]_
 
 You can trigger a manual sync of any configured attributes. All checks to skip syncing or to sync asynchronously will still be executed.
 
+If the record does not exist in Salesforce, the provided attributes will be ignored and all attributes will be synced.
+
 ```ruby
 my_user_record.salesforce_sync(:email)
 

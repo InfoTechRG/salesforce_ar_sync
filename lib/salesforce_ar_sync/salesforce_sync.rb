@@ -224,8 +224,8 @@ module SalesforceArSync
       else
         if salesforce_object_exists?
           salesforce_update_object(attributes_to_update) if attributes_to_update.present?
-        else
-          salesforce_create_object(attributes_to_update(!new_record?)) if salesforce_id.nil?
+        elsif salesforce_id.nil?
+          salesforce_create_object(salesforce_attributes_to_update(!new_record?))
         end
       end
     rescue Exception => ex

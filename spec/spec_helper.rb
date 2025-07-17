@@ -1,5 +1,6 @@
 require 'bundler/setup'
 require 'debug'
+require 'ostruct'
 require 'rails/all'
 require 'salesforce_ar_sync'
 require 'active_record'
