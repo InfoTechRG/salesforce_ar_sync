@@ -48,3 +48,4 @@
 
 # Version 5.2.1
 * Reverted accidental change to object creation during sync.
+* Added CI for the test suite.
