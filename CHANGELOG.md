@@ -49,3 +49,6 @@
 # Version 5.2.1
 * Reverted accidental change to object creation during sync.
 * Added CI for the test suite.
+
+# Version 5.3.0
+* Changed salesforce_ar_sync to use bang (!) versions of Restforce CRUD methods to raise errors on Salesforce save failures instead of returning false.

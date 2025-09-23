@@ -521,14 +521,14 @@ describe SalesforceArSync, :vcr do
           }
         )
 
-        expect(SF_CLIENT).to receive(:update).with('Contact', expected_attributes)
+        expect(SF_CLIENT).to receive(:update!).with('Contact', expected_attributes)
         contact.salesforce_update_object(contact.attributes)
       end
     end
 
     context 'when the class should not sync web id' do
       it 'calls SF_CLIENT.update with the correct parameters' do
-        expect(SF_CLIENT).to receive(:update).with('Contact', contact.attributes.merge(Id: contact.salesforce_id))
+        expect(SF_CLIENT).to receive(:update!).with('Contact', contact.attributes.merge(Id: contact.salesforce_id))
         contact.salesforce_update_object(contact.attributes)
       end
     end
@@ -549,14 +549,14 @@ describe SalesforceArSync, :vcr do
       SalesforceArSync.config['SYNC_ENABLED'] = true
       stub_const('SF_CLIENT', restforce_client_stub)
 
-      allow(SF_CLIENT).to receive(:update)
+      allow(SF_CLIENT).to receive(:update!)
       allow(contact).to receive(:salesforce_object_exists?).and_return(true)
     end
 
     context 'when supplied with which attributes to sync' do
       it 'calls SF_CLIENT.update with the correct parameters' do
         contact.salesforce_sync(:first_name, :email_address)
-        expect(SF_CLIENT).to have_received(:update).with(
+        expect(SF_CLIENT).to have_received(:update!).with(
           'Contact',
           Id: contact.salesforce_id,
           Contact.salesforce_sync_attribute_mapping.invert[:first_name] => contact.first_name,
@@ -568,7 +568,7 @@ describe SalesforceArSync, :vcr do
     context 'when supplied with invalid attributes to sync' do
       it 'calls SF_CLIENT.update with the correct parameters' do
         contact.salesforce_sync(:bad_attribute)
-        expect(SF_CLIENT).not_to have_received(:update)
+        expect(SF_CLIENT).not_to have_received(:update!)
       end
     end
   end

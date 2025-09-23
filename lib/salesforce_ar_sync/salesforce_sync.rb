@@ -176,20 +176,19 @@ module SalesforceArSync
 
     def salesforce_create_object(attributes)
       attributes[self.class.salesforce_web_id_attribute_name.to_s] = id if self.class.salesforce_sync_web_id? && !new_record?
-      salesforce_id = SF_CLIENT.create(salesforce_object_name, format_attributes(attributes))
-      self.salesforce_id = salesforce_id
+      self.salesforce_id = SF_CLIENT.create!(salesforce_object_name, format_attributes(attributes))
       @exists_in_salesforce = true
     end
 
     def salesforce_update_object(attributes)
       attributes[self.class.salesforce_web_id_attribute_name.to_s] = id if self.class.salesforce_sync_web_id? && !new_record?
 
-      SF_CLIENT.update(salesforce_object_name, format_attributes(attributes).merge(Id: salesforce_id))
+      SF_CLIENT.update!(salesforce_object_name, format_attributes(attributes).merge(Id: salesforce_id))
     end
 
     def salesforce_delete_object
       if ar_sync_outbound_delete?
-        SF_CLIENT.destroy(salesforce_object_name, salesforce_id)
+        SF_CLIENT.destroy!(salesforce_object_name, salesforce_id)
       end
     end
 
@@ -236,7 +235,7 @@ module SalesforceArSync
     def sync_web_id
       return false if !self.class.salesforce_sync_web_id? || SalesforceArSync.config['SYNC_ENABLED'] == false
 
-      SF_CLIENT.update(salesforce_object_name, Id: salesforce_id, self.class.salesforce_web_id_attribute_name.to_s => get_activerecord_web_id) if salesforce_id
+      SF_CLIENT.update!(salesforce_object_name, Id: salesforce_id, self.class.salesforce_web_id_attribute_name.to_s => get_activerecord_web_id) if salesforce_id
     end
 
     def get_activerecord_web_id
