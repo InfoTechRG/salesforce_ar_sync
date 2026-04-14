@@ -145,6 +145,34 @@ describe SalesforceArSync, :vcr do
 
       Contact.salesforce_update(Id: sf_id)
     end
+
+    context 'when an existing record is not found but ActiveRecord::RecordNotUnique is raised on save' do
+      let(:contact) do
+        Contact.new(
+          first_name: 'Bob',
+          last_name: 'Smith',
+          phone: '519 555-1212',
+          email: 'bsmith@example.com',
+          salesforce_skip_sync: true
+        )
+      end
+      let(:return_values) { [:raise, true] }
+
+      before do
+        allow(Contact).to receive(:salesforce_sync_web_id?).and_return(false)
+        allow(Contact).to receive(:unscoped_updates?).and_return(false)
+        # simulate the record being created after the find but before the save
+        allow(Contact).to receive(:new).and_return(contact)
+        allow(contact).to receive(:save!).exactly(2).times do
+          return_value = return_values.shift
+          return_value == :raise ? (contact.save and raise(ActiveRecord::RecordNotUnique)) : return_value
+        end
+      end
+      it 'retries and updates the found record' do
+        expect(Contact).to receive(:new).once
+        expect { Contact.salesforce_update(Id: 321, WebId__c: 432) }.not_to raise_exception
+      end
+    end
   end
 
   describe '.salesforce_id_attribute_name' do
