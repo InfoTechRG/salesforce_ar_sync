@@ -71,20 +71,10 @@ module SalesforceArSync
       def salesforce_update(attributes = {})
         raise ArgumentError, "#{salesforce_id_attribute_name} parameter required" if attributes[salesforce_id_attribute_name].blank?
 
-        retried = false
-        begin
-          object = find_record(attributes) || build_record(attributes)
-
-          object.salesforce_process_update(attributes) if object && (object.salesforce_updated_at.nil? || (object.salesforce_updated_at && object.salesforce_updated_at < Time.parse(attributes[:SystemModstamp])))
-        rescue ActiveRecord::RecordNotUnique
-          if retried
-            raise
-          else
-            retried = true
-            retry
-          end
-        end
+        attempt_salesforce_update(attributes)
       end
+
+      private
 
       def find_record(attributes)
         data_source = unscoped_updates ? unscoped : self
@@ -107,6 +97,23 @@ module SalesforceArSync
             object.send("#{k}=", v)
           end
         end
+      end
+
+      def attempt_salesforce_update(attributes, retried: false)
+        object = find_record(attributes) || build_record(attributes)
+        return unless object
+
+        object.salesforce_process_update(attributes) if salesforce_stale?(object, attributes[:SystemModstamp])
+      rescue ActiveRecord::RecordNotUnique
+        raise if retried
+
+        attempt_salesforce_update(attributes, retried: true)
+      end
+
+      def salesforce_stale?(object, modstamp)
+        return false if modstamp.blank?
+
+        object.salesforce_updated_at.nil? || object.salesforce_updated_at < Time.parse(modstamp)
       end
     end
 
