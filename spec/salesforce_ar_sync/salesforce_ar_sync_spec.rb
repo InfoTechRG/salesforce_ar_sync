@@ -137,13 +137,14 @@ describe SalesforceArSync, :vcr do
     it 'looks for unscoped records when unscoped_updates is set' do
       sf_id = 1
       contact = Contact.new(salesforce_id: sf_id)
+      modstamp = '2012-03-26T19:54:50.000Z'
       allow(Contact).to receive(:unscoped_updates).and_return(true)
 
       expect(contact).to receive(:salesforce_process_update) { nil }
       expect(Contact).to receive(:unscoped).and_return(self)
       expect(self).to receive(:find_by).with(salesforce_id: sf_id).and_return(contact)
 
-      Contact.salesforce_update(Id: sf_id)
+      Contact.salesforce_update(Id: sf_id, SystemModstamp: modstamp)
     end
 
     context 'when an existing record is not found but ActiveRecord::RecordNotUnique is raised on save' do
@@ -156,21 +157,27 @@ describe SalesforceArSync, :vcr do
           salesforce_skip_sync: true
         )
       end
-      let(:return_values) { [:raise, true] }
 
       before do
         allow(Contact).to receive(:salesforce_sync_web_id?).and_return(false)
         allow(Contact).to receive(:unscoped_updates?).and_return(false)
         # simulate the record being created after the find but before the save
         allow(Contact).to receive(:new).and_return(contact)
-        allow(contact).to receive(:save!).exactly(2).times do
-          return_value = return_values.shift
-          return_value == :raise ? (contact.save and raise(ActiveRecord::RecordNotUnique)) : return_value
+        allow(contact).to receive(:save!).once do
+          contact.save
+          raise(ActiveRecord::RecordNotUnique)
         end
       end
+
       it 'retries and updates the found record' do
         expect(Contact).to receive(:new).once
-        expect { Contact.salesforce_update(Id: 321, WebId__c: 432) }.not_to raise_exception
+        expect(Contact).to receive(:find_by).with(salesforce_id: 321).twice.and_call_original
+
+        expect {
+          Contact.salesforce_update(Id: 321, SystemModstamp: '2024-01-01T00:00:00.000Z')
+        }.not_to raise_exception
+
+        expect(Contact.where(salesforce_id: 321)).to exist
       end
     end
   end
