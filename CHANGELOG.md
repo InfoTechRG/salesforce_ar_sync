@@ -52,3 +52,6 @@
 
 # Version 5.3.0
 * Changed salesforce_ar_sync to use bang (!) versions of Restforce CRUD methods to raise errors on Salesforce save failures instead of returning false.
+
+# Version 5.3.1
+* Fix race condition in app-level upsert by retrying on ActiveRecord::RecordNotUnique

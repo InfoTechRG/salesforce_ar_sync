@@ -71,24 +71,49 @@ module SalesforceArSync
       def salesforce_update(attributes = {})
         raise ArgumentError, "#{salesforce_id_attribute_name} parameter required" if attributes[salesforce_id_attribute_name].blank?
 
+        attempt_salesforce_update(attributes)
+      end
+
+      private
+
+      def find_record(attributes)
         data_source = unscoped_updates ? unscoped : self
         object = data_source.find_by(salesforce_id: attributes[salesforce_id_attribute_name])
         object ||= data_source.find_by(activerecord_web_id_attribute_name => attributes[salesforce_web_id_attribute_name]) if salesforce_sync_web_id? && attributes[salesforce_web_id_attribute_name]
+        return object if object.present?
 
-        if !object && additional_lookup_fields
+        if additional_lookup_fields
           additional_lookup_fields.each do |attribute_name, salesforce_attribute_name|
             object = data_source.find_by(attribute_name => attributes[salesforce_attribute_name]) if attributes[salesforce_attribute_name]
+            break if object
           end
+          return object
         end
+      end
 
-        if object.nil?
-          object = new
+      def build_record(attributes)
+        new.tap do |object|
           salesforce_default_attributes_for_create.merge(salesforce_id: attributes[salesforce_id_attribute_name]).each_pair do |k, v|
             object.send("#{k}=", v)
           end
         end
+      end
 
-        object.salesforce_process_update(attributes) if object && (object.salesforce_updated_at.nil? || (object.salesforce_updated_at && object.salesforce_updated_at < Time.parse(attributes[:SystemModstamp])))
+      def attempt_salesforce_update(attributes, retried: false)
+        object = find_record(attributes) || build_record(attributes)
+        return unless object
+
+        object.salesforce_process_update(attributes) if salesforce_stale?(object, attributes[:SystemModstamp])
+      rescue ActiveRecord::RecordNotUnique
+        raise if retried
+
+        attempt_salesforce_update(attributes, retried: true)
+      end
+
+      def salesforce_stale?(object, modstamp)
+        return false if modstamp.blank?
+
+        object.salesforce_updated_at.nil? || object.salesforce_updated_at < Time.parse(modstamp)
       end
     end
 
