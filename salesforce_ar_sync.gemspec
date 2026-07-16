@@ -25,5 +25,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'vcr'
   gem.add_development_dependency 'webmock'
 
-  gem.add_runtime_dependency 'restforce', '~> 5.0.5'
+  gem.add_runtime_dependency 'restforce', '>= 5.0.5', '< 9.0'
 end

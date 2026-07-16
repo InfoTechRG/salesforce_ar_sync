@@ -55,3 +55,6 @@
 
 # Version 5.3.1
 * Fix race condition in app-level upsert by retrying on ActiveRecord::RecordNotUnique
+
+# Version 5.3.2
+* Relax restforce pin.
